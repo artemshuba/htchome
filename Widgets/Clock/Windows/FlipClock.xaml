@@ -11,6 +11,14 @@
         <ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="{Binding ElementName=Scale, Path=ScaleX}"/>
     </Window.RenderTransform>
     <Window.Resources>
+        <!--<ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Home.Base;component/Resources/TabControlGlass.xaml"/>
+                <ResourceDictionary Source="/Home.Base;component/Resources/WeatherRefreshProgressBar.xaml"/>
+                <ResourceDictionary Source="/Home.Base;component/Resources/StyleItemRadioButton.xaml"/>
+                <ResourceDictionary Source="/Home.Base;component/Resources/Colors.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>-->
         <Storyboard x:Key="ShowForecastAnim" Completed="ShowForecastAnimCompleted">
             <DoubleAnimation Storyboard.TargetName="this" Storyboard.TargetProperty="Height" To="280" Duration="0:0:0.3" AccelerationRatio="0.3" DecelerationRatio="0.3" FillBehavior="Stop"/>
             <DoubleAnimation Storyboard.TargetName="ForecastGrid" Storyboard.TargetProperty="Height" To="70" Duration="0:0:0.3" AccelerationRatio="0.3" DecelerationRatio="0.3"/>

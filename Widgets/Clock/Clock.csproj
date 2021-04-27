@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -13,7 +12,7 @@
     <ApplicationIcon>clock_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\Users\Artem\Desktop\HTC Home Repo\HTC Home\bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\Widgets\Clock\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="Fonts\DroidSans.ttf" />
@@ -129,8 +128,20 @@
     <Page Remove="Windows\Sense4FlipClock.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Home.Base\Home.Base.csproj" />
-    <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj" />
-    <ProjectReference Include="..\..\Weather.Base\Weather.Base.csproj" />
+    <PackageReference Include="NLog" Version="4.7.9" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Home.Base\Home.Base.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>all</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj">
+      <Private>false</Private>
+      <ExcludeAssets>all</ExcludeAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Weather.Base\Weather.Base.csproj">
+      <Private>true</Private>
+      <ExcludeAssets>all</ExcludeAssets>
+    </ProjectReference>
   </ItemGroup>
 </Project>

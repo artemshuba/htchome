@@ -264,24 +264,24 @@ namespace Clock.Windows
             if (!string.IsNullOrEmpty(WeatherProvidersBox.Text))
                 App.Settings.Provider = WeatherProvidersBox.Text;
 
-            if (App.Settings.UpdateInterval != UpdateFreqSlider.Value)
-            {
-                App.UpdateTimer.Interval = TimeSpan.FromMinutes(UpdateFreqSlider.Value);
-                App.UpdateTimer.Stop();
-                App.UpdateTimer.Start();
-            }
+            //if (App.Settings.UpdateInterval != UpdateFreqSlider.Value)
+            //{
+            //    App.UpdateTimer.Interval = TimeSpan.FromMinutes(UpdateFreqSlider.Value);
+            //    App.UpdateTimer.Stop();
+            //    App.UpdateTimer.Start();
+            //}
 
-            if (!App.Settings.CheckForUpdates)
-            {
-                App.UpdateTimer.Stop();
-            }
+            //if (!App.Settings.CheckForUpdates)
+            //{
+            //    App.UpdateTimer.Stop();
+            //}
 
             App.Settings.UpdateInterval = (int)UpdateFreqSlider.Value;
 
-            if (App.Settings.UseTrayIcon)
-                ((App)Application.Current).AddTrayIcon();
-            else
-                ((App)Application.Current).RemoveTrayIcon();
+            //if (App.Settings.UseTrayIcon)
+            //    ((App)Application.Current).AddTrayIcon();
+            //else
+            //    ((App)Application.Current).RemoveTrayIcon();
 
             var lastStyle = App.Settings.Style;
             if ((bool)FlipClockStyle.IsChecked)

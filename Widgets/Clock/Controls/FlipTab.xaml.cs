@@ -70,23 +70,23 @@ namespace Clock.Controls
             get { return timeMode; }
             set
             {
-                switch (value)
-                {
-                    case TimeMode.None:
-                        AmPm.Visibility = System.Windows.Visibility.Hidden;
-                        AmPmBack.Opacity = 0;
-                        break;
-                    case TimeMode.Am:
-                        AmPm.Visibility = System.Windows.Visibility.Visible;
-                        AmPmBack.Opacity = 1;
-                        AmPmBack.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Clock;component/Resources/FlipClock/am.png"));
-                        break;
-                    case TimeMode.Pm:
-                        AmPm.Visibility = System.Windows.Visibility.Visible;
-                        AmPmBack.Opacity = 1;
-                        AmPmBack.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Clock;component/Resources/FlipClock/pm.png"));
-                        break;
-                }
+                //switch (value)
+                //{
+                //    case TimeMode.None:
+                //        AmPm.Visibility = System.Windows.Visibility.Hidden;
+                //        AmPmBack.Opacity = 0;
+                //        break;
+                //    case TimeMode.Am:
+                //        AmPm.Visibility = System.Windows.Visibility.Visible;
+                //        AmPmBack.Opacity = 1;
+                //        AmPmBack.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Clock;component/Resources/FlipClock/am.png"));
+                //        break;
+                //    case TimeMode.Pm:
+                //        AmPm.Visibility = System.Windows.Visibility.Visible;
+                //        AmPmBack.Opacity = 1;
+                //        AmPmBack.ImageSource = new BitmapImage(new Uri("pack://application:,,,/Clock;component/Resources/FlipClock/pm.png"));
+                //        break;
+                //}
                 timeMode = value;
             }
         }
@@ -117,21 +117,21 @@ namespace Clock.Controls
 
             if (TimeMode != TimeMode.None && GetFirstDigit(d) == 0)
             {
-                BgLeftDigitGrid.Visibility = System.Windows.Visibility.Collapsed;
-                LeftDigitBottomBrush.Opacity = 0;
-                LeftDigitTopBrush.Opacity = 0;
-                RightDigitTopTranslate.X = 0.285;
-                RightDigitBottomTranslate.X = 0.285;
+                //BgLeftDigitGrid.Visibility = System.Windows.Visibility.Collapsed;
+                //LeftDigitBottomBrush.Opacity = 0;
+                //LeftDigitTopBrush.Opacity = 0;
+                //RightDigitTopTranslate.X = 0.285;
+                //RightDigitBottomTranslate.X = 0.285;
             }
 
             else
             {
-                BgLeftDigitGrid.Visibility = System.Windows.Visibility.Visible;
-                LeftDigitBottomBrush.Opacity = 1;
-                LeftDigitTopBrush.Opacity = 1;
+                //BgLeftDigitGrid.Visibility = System.Windows.Visibility.Visible;
+                //LeftDigitBottomBrush.Opacity = 1;
+                //LeftDigitTopBrush.Opacity = 1;
 
-                RightDigitTopTranslate.X = 0.495;
-                RightDigitBottomTranslate.X = 0.495;
+                //RightDigitTopTranslate.X = 0.495;
+                //RightDigitBottomTranslate.X = 0.495;
             }
             //if (TimeMode == TimeMode.Am)
             //    AmPmBack.ImageSource = new BitmapImage(new Uri("am.png"));
