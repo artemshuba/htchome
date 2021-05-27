@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Clock.Domain;
 
 namespace Clock.Controls
@@ -21,7 +12,27 @@ namespace Clock.Controls
     /// </summary>
     public partial class FlipTab : UserControl
     {
-        const string Path = "/Clock;component/Resources/FlipClock/Digits/{0}.png";
+        private const string Path = "pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png";
+
+        private bool _isFlipping = false;
+        private bool _isInitialValueChange = true;
+
+        // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ValueProperty =
+            DependencyProperty.Register(nameof(Value), typeof(int), typeof(FlipTab), new PropertyMetadata(default(int), OnValueChanged));
+
+        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (FlipTab)d;
+            control.Flip((int)e.NewValue, !control._isInitialValueChange);
+            control._isInitialValueChange = false;
+        }
+
+        public int Value
+        {
+            get { return (int)GetValue(ValueProperty); }
+            set { SetValue(ValueProperty, value); }
+        }
 
         public event EventHandler FlipCompleted;
 
@@ -47,20 +58,6 @@ namespace Clock.Controls
                 var s = (Storyboard)this.Resources["FlipAnim"];
                 s.BeginTime = TimeSpan.FromSeconds(value);
                 delay = value;
-            }
-        }
-
-        private int _value;
-        public int Value
-        {
-            get { return _value; }
-            set
-            {
-                BgLeftDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, GetFirstDigit(value)), UriKind.Relative));
-                BgRightDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, GetLastDigit(value)), UriKind.Relative));
-                BgLeftDigitBottom.Source = BgLeftDigitTop.Source;
-                BgRightDigitBottom.Source = BgRightDigitTop.Source;
-                _value = value;
             }
         }
 
@@ -102,10 +99,26 @@ namespace Clock.Controls
             //AmPmBack.ImageSource = bi;
         }
 
-        public void Flip(int d)
+        public void Flip(int newValue, bool animated = true)
         {
-            BgLeftDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, GetFirstDigit(d)), UriKind.Relative));
-            BgRightDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, GetLastDigit(d)), UriKind.Relative));
+            if (_isFlipping)
+                return;
+
+            _isFlipping = true;
+
+            var firstDigit = GetFirstDigit(newValue);
+            var lastDigit = GetLastDigit(newValue);
+
+            if (animated)
+            {
+                BgLeftDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, firstDigit), UriKind.Absolute));
+                BgRightDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, lastDigit), UriKind.Absolute));
+            }
+            else
+            {
+                BgLeftDigitBottom.Source = new BitmapImage(new Uri(string.Format(Path, firstDigit), UriKind.Absolute));
+                BgRightDigitBottom.Source = new BitmapImage(new Uri(string.Format(Path, lastDigit), UriKind.Absolute));
+            }
 
             //if (timeMode != -1)
             //{
@@ -115,7 +128,7 @@ namespace Clock.Controls
             //        AmPmBack.ImageSource = new BitmapImage(new Uri("pm.png"));
             //}
 
-            if (TimeMode != TimeMode.None && GetFirstDigit(d) == 0)
+            if (TimeMode != TimeMode.None && firstDigit == 0)
             {
                 //BgLeftDigitGrid.Visibility = System.Windows.Visibility.Collapsed;
                 //LeftDigitBottomBrush.Opacity = 0;
@@ -138,11 +151,16 @@ namespace Clock.Controls
             //else
             //    AmPmBack.ImageSource = new BitmapImage(new Uri("pm.png"));
 
+            if (animated) 
+            {
+                var s = (Storyboard)this.Resources["FlipAnim"];
+                s.Begin();
+            } else
+            {
+                _isFlipping = false;
+            }
 
-            var s = (Storyboard)this.Resources["FlipAnim"];
-            s.Begin();
-
-            _value = d;
+            //Value = d;
         }
 
         private static int GetFirstDigit(int n)
@@ -177,10 +195,13 @@ namespace Clock.Controls
         {
             BgLeftDigitBottom.Source = BgLeftDigitTop.Source;
             BgRightDigitBottom.Source = BgRightDigitTop.Source;
+
             AmPm.Source = AmPmBack.ImageSource;
 
             if (FlipCompleted != null)
                 FlipCompleted(this, EventArgs.Empty);
+
+            _isFlipping = false;
         }
     }
 }

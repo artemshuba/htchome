@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Windows;
+using System.Windows.Media;
 
 namespace HTCHome.Widgets
 {
@@ -38,15 +39,10 @@ namespace HTCHome.Widgets
 
                 var widget = Activator.CreateInstance(widgetType) as IWidget;
                 var widgetView = widget.GetView();
-                var window = new Window();
+                var window = new WidgetWindow();
 
-                window.WindowStyle = WindowStyle.None;
-                window.AllowsTransparency = true;
-                window.Background = null;
                 window.Content = widgetView;
                 window.Show();
-
-
             }
         }
 

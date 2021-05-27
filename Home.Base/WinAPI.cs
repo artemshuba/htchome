@@ -102,6 +102,9 @@ namespace Home.Base
         [DllImport("user32.dll")]
         public static extern bool SetWindowPos(IntPtr hwnd, IntPtr hwndInsertAfter, int x, int y, int width, int height, uint flags);
 
+        [DllImport("user32.dll")]
+        public static extern bool SetWindowRgn(IntPtr hwnd, IntPtr rgn, bool redraw);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
 
