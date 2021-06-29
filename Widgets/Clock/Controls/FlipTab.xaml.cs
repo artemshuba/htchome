@@ -101,8 +101,8 @@ namespace Clock.Controls
 
         public void Flip(int newValue, bool animated = true)
         {
-            if (_isFlipping)
-                return;
+            //if (_isFlipping)
+            //    return;
 
             _isFlipping = true;
 

@@ -46,6 +46,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Home.Base\Home.Base.csproj" />
+    <ProjectReference Include="..\Widgets\Clock\Clock.csproj">
+      <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

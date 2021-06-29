@@ -6,15 +6,16 @@
              xmlns:controls="clr-namespace:Clock.Controls"
              xmlns:viewModel="clr-namespace:Clock.ViewModel"
              mc:Ignorable="d"
-             Width="500" Height="200">
+             Width="500" Height="200"
+             Loaded="Widget_Loaded">
     <UserControl.DataContext>
         <viewModel:WidgetViewModel/>
     </UserControl.DataContext>
     <Grid Margin="100,15,100,0">
         <Image Name="BackgroundImage" Source="/Resources/FlipClock/base_default.png" Stretch="Fill"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-16,0,0">
-            <controls:FlipTab x:Name="HoursTab" Delay="0.0" Margin="0,0,10,0" Value="{Binding Hours}"/>
-            <controls:FlipTab x:Name="MinutesTab" Delay="0.0" Speed="0.9" Value="{Binding Minutes}"/>
+            <controls:FlipTab x:Name="HoursTab" Delay="0.3" Margin="0,0,10,0"/>
+            <controls:FlipTab x:Name="MinutesTab" Delay="0.2" Speed="0.7"/>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -34,27 +34,6 @@ namespace Clock.ViewModel
                 Hours = DateTime.Now.Hour;
                 Minutes = DateTime.Now.Minute;
             }, Dispatcher.CurrentDispatcher);
-
-            SetInitialTime();
-        }
-
-        private async void SetInitialTime()
-        {
-            var now = DateTime.Now;
-            var time = now.AddMinutes(-1);
-
-            await Task.Delay(300);
-
-            Minutes = time.Minute;
-
-            await Task.Delay(300);
-
-            Hours = time.Hour;
-
-            await Task.Delay(500);
-
-            Minutes = now.Minute;
-            _clockTimer.Start();
         }
     }
 }
