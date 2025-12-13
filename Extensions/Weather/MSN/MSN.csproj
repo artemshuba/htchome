@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -11,14 +11,9 @@
     <Authors>Stealth</Authors>
     <Copyright>© Stealth 2021</Copyright>
     <Product>MSN weather provider</Product>
+    <OutputPath>..\..\..\bin\$(Configuration)\Extras\Weather\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\bin\Debug\Extras\Weather\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <OutputPath>..\..\..\bin\Release\Extras\Weather\</OutputPath>
-  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="msn.ext.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -32,11 +27,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Home.Base\Home.Base.csproj">
-      <ExcludeAssets>all</ExcludeAssets>
       <Private>false</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Weather.Base\Weather.Base.csproj">
-      <ExcludeAssets>all</ExcludeAssets>
       <Private>false</Private>
     </ProjectReference>
   </ItemGroup>

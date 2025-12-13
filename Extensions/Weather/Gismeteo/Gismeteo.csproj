@@ -1,6 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -10,9 +9,7 @@
     <Version>1.4.0</Version>
     <Authors>swups</Authors>
     <Product>Gismeteo weather provider</Product>    
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\bin\Debug\Extras\Weather\</OutputPath>
+  <OutputPath>..\..\..\bin\$(Configuration)\Extras\Weather\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Gismeteo.ext.xml" />
@@ -20,11 +17,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Home.Base\Home.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Weather.Base\Weather.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
   </ItemGroup>
 </Project>

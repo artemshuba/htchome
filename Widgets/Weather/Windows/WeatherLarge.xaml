@@ -1,13 +1,13 @@
-﻿<Window x:Class="Weather.Windows.WeatherLarge"
+﻿<UserControl x:Class="Weather.Windows.WeatherLarge"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Controls="clr-namespace:Weather.Controls"
         xmlns:Properties="clr-namespace:Weather.Properties"
         xmlns:WeatherIcons="clr-namespace:Weather.WeatherIcons"
-        Height="480" Width="300" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent" FontWeight="Light"
-        SourceInitialized="WindowSourceInitialized" Loaded="WindowLoaded" MouseMove="WindowMouseMove" MouseLeftButtonUp="WindowMouseLeftButtonUp" MouseEnter="ThisMouseEnter"
+        Height="480" Width="300" FontWeight="Light"
+        Loaded="WindowLoaded" MouseMove="WindowMouseMove" MouseLeftButtonUp="WindowMouseLeftButtonUp" MouseEnter="ThisMouseEnter"
         MouseLeave="ThisMouseLeave">
-    <Window.ContextMenu>
+    <UserControl.ContextMenu>
         <ContextMenu>
             <MenuItem Header="Demo" Visibility="Collapsed">
                 <MenuItem Name="ClearItem" Header="Clear" Click="ClearItem_Click"/>
@@ -21,14 +21,12 @@
             <MenuItem Name="OptionsItem" Header="{x:Static Properties:Resources.OptionsItem}" Click="OptionsItemClick"/>
             <MenuItem Name="CloseItem" Header="{x:Static Properties:Resources.CloseItem}" Click="CloseItemClick"/>
         </ContextMenu>
-    </Window.ContextMenu>
-    <Window.RenderTransform>
+    </UserControl.ContextMenu>
+    <UserControl.RenderTransform>
         <ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="{Binding ElementName=Scale, Path=ScaleX}"/>
-    </Window.RenderTransform>
-    <Window.TaskbarItemInfo>
-        <TaskbarItemInfo x:Name="Taskbar"/>
-    </Window.TaskbarItemInfo>
-    <Window.Resources>
+    </UserControl.RenderTransform>
+    
+    <UserControl.Resources>
         <Storyboard x:Key="ShowVideoAnim">
             <DoubleAnimation Storyboard.TargetName="MediaElement" Storyboard.TargetProperty="Opacity" From="-1" To="1" Duration="0:0:2.5"/>
             <DoubleAnimation Storyboard.TargetName="WeatherIcon" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:2.5" BeginTime="0:0:1.5"/>
@@ -43,7 +41,7 @@
         <Storyboard x:Key="MouseLeave">
             <DoubleAnimation Storyboard.TargetProperty="Opacity" Duration="0:0:0.3" FillBehavior="Stop" Completed="MouseLeaveCompleted"/>
         </Storyboard>
-    </Window.Resources>
+    </UserControl.Resources>
     <Grid Margin="0,45,0,0">
         <Rectangle RadiusX="10" RadiusY="10" Stroke="#717171" Opacity="0.7">
             <Rectangle.Fill>
@@ -67,8 +65,8 @@
             <StackPanel.Effect>
                 <DropShadowEffect Direction="315" ShadowDepth="1" BlurRadius="2"/>
             </StackPanel.Effect>
-            <TextBlock Name="TemperatureTextBlock" Text="0°" Foreground="White" FontSize="54" Margin="0,0,0,-12"/>
-            <TextBlock Name="TemperatureHLTextBlock" Text="0° / 0°" Foreground="White" FontSize="20"/>
+            <TextBlock Name="TemperatureTextBlock" Text="0�" Foreground="White" FontSize="54" Margin="0,0,0,-12"/>
+            <TextBlock Name="TemperatureHLTextBlock" Text="0� / 0�" Foreground="White" FontSize="20"/>
         </StackPanel>
         <StackPanel Name="HWGrid" VerticalAlignment="Center" Margin="0,-80,15,0" HorizontalAlignment="Right" Visibility="Collapsed">
             <StackPanel Name="WindSpeedPanel" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,0">
@@ -165,4 +163,6 @@
         </Grid>
         <Image Source="/Resources/footer.png" VerticalAlignment="Bottom"/>
     </Grid>
-</Window>
+</UserControl>
+
+

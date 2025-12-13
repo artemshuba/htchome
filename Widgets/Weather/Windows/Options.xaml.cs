@@ -1,28 +1,21 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using Home.Base;
-using Home.Packaging;
 using Microsoft.Win32;
 using Weather.Base;
-using Weather.Controls;
 using Path = System.IO.Path;
 
 namespace Weather.Windows
@@ -85,17 +78,17 @@ namespace Weather.Windows
 
             SearchBox.TextChanged += SearchBoxTextChanged;
 
-            ShowFeelsLikeCheckBox.IsChecked = App.Settings.ShowFeelsLike;
+            ShowFeelsLikeCheckBox.IsChecked = Globals.Settings.ShowFeelsLike;
 
-            foreach (var p in App.WpManager.Providers)
+            foreach (var p in Globals.WpManager.Providers)
             {
                 WeatherProvidersBox.Items.Add(p.Name);
             }
 
-            WeatherProvidersBox.SelectedIndex = App.WpManager.Providers.IndexOf(App.WpManager.CurrentProvider);
-            WeatherIntervalSlider.Value = App.Settings.RefreshInterval;
+            WeatherProvidersBox.SelectedIndex = Globals.WpManager.Providers.IndexOf(Globals.WpManager.CurrentProvider);
+            WeatherIntervalSlider.Value = Globals.Settings.RefreshInterval;
 
-            if (App.Settings.TempScale == TemperatureScale.Celsius)
+            if (Globals.Settings.TempScale == TemperatureScale.Celsius)
                 CelsiusRadioButton.IsChecked = true;
 
             LanguageComboBox.Items.Add(new ComboBoxItem() { Content = CultureInfo.GetCultureInfo("en-US").NativeName });
@@ -112,9 +105,9 @@ namespace Weather.Windows
                 catch { }
             }
 
-            LanguageComboBox.Text = CultureInfo.GetCultureInfo(App.Settings.Language).NativeName;
+            LanguageComboBox.Text = CultureInfo.GetCultureInfo(Globals.Settings.Language).NativeName;
 
-            switch (App.Settings.Style)
+            switch (Globals.Settings.Style)
             {
                 case Styles.Large:
                     LargeStyle.IsChecked = true;
@@ -130,18 +123,18 @@ namespace Weather.Windows
                     break;
             }
 
-            SizeSlider.Value = Math.Round(App.Settings.Scale * 100);
+            SizeSlider.Value = Math.Round(Globals.Settings.Scale * 100);
             SizeValueTextBlock.Text = SizeSlider.Value + "%";
 
-            TransparencySlider.Value = Math.Round((1 - App.Settings.Opacity) * 100);
+            TransparencySlider.Value = Math.Round((1 - Globals.Settings.Opacity) * 100);
             TransparencyValueTextBlock.Text = TransparencySlider.Value + "%";
 
-            UpdateFreqSlider.Value = App.Settings.UpdateInterval;
+            UpdateFreqSlider.Value = Globals.Settings.UpdateInterval;
             UpdateFreqValueTextBlock.Text = UpdateFreqSlider.Value + " " + Properties.Resources.OptionsIntervalMinutes;
 
-            UseAeroCheckBox.IsChecked = App.Settings.UseAero;
+            UseAeroCheckBox.IsChecked = Globals.Settings.UseAero;
 
-            ShowTaskbarIconCheckBox.IsChecked = !App.Settings.UseTrayIcon;
+            ShowTaskbarIconCheckBox.IsChecked = !Globals.Settings.UseTrayIcon;
             if (Environment.OSVersion.Version.Major <= 6 && Environment.OSVersion.Version.Minor < 1)
                 ShowTaskbarIconCheckBox.Visibility = System.Windows.Visibility.Collapsed;
 
@@ -154,11 +147,11 @@ namespace Weather.Windows
                 }
             }
 
-            UpdatesCheckBox.IsChecked = App.Settings.CheckForUpdates;
-            ShowHWCheckBox.IsChecked = App.Settings.ShowHW;
-            AutostartCheckBox.IsChecked = App.Settings.Autostart;
+            UpdatesCheckBox.IsChecked = Globals.Settings.CheckForUpdates;
+            ShowHWCheckBox.IsChecked = Globals.Settings.ShowHW;
+            AutostartCheckBox.IsChecked = Globals.Settings.Autostart;
 
-            switch (App.Settings.WindSpeedScale)
+            switch (Globals.Settings.WindSpeedScale)
             {
                 case WindSpeedScale.Mph:
                     MphRadioButton.IsChecked = true;
@@ -171,16 +164,16 @@ namespace Weather.Windows
                     break;
             }
 
-            var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
-            foreach (var updateInfo in updates)
-            {
-                UpdatesList.Items.Add(updateInfo);
-            }
+            //var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
+            //foreach (var updateInfo in updates)
+            //{
+            //    UpdatesList.Items.Add(updateInfo);
+            //}
 
-            SilentUpdateCheckBox.IsChecked = App.Settings.SilentUpdate;
-            if (App.SoundPlayer == null)
+            SilentUpdateCheckBox.IsChecked = Globals.Settings.SilentUpdate;
+            if (Globals.SoundPlayer == null)
                 PlaySoundsAnimCheckBox.Visibility = System.Windows.Visibility.Collapsed;
-            PlaySoundsAnimCheckBox.IsChecked = App.Settings.EnableSounds;
+            PlaySoundsAnimCheckBox.IsChecked = Globals.Settings.EnableSounds;
 
             ApplyButton.IsEnabled = false;
         }
@@ -212,84 +205,84 @@ namespace Weather.Windows
         {
             if (currentLocation != null)
             {
-                App.Settings.LocationCode = currentLocation.Code;
+                Globals.Settings.LocationCode = currentLocation.Code;
             }
-            App.Settings.ShowFeelsLike = (bool)ShowFeelsLikeCheckBox.IsChecked;
-            App.Settings.RefreshInterval = WeatherIntervalSlider.Value;
-            App.Settings.TempScale = (bool)CelsiusRadioButton.IsChecked ? TemperatureScale.Celsius : TemperatureScale.Fahrenheit;
-            App.Settings.Scale = SizeSlider.Value / 100;
-            App.Settings.Opacity = 1 - (TransparencySlider.Value / 100);
-            App.Settings.UseAero = (bool)UseAeroCheckBox.IsChecked;
-            App.Settings.UseTrayIcon = !(bool)ShowTaskbarIconCheckBox.IsChecked;
-            App.Settings.Provider = WeatherProvidersBox.Text;
-            App.Settings.CheckForUpdates = (bool)UpdatesCheckBox.IsChecked;
-            App.Settings.ShowHW = (bool)ShowHWCheckBox.IsChecked;
-            App.Settings.SilentUpdate = (bool)SilentUpdateCheckBox.IsChecked;
-            App.Settings.EnableSounds = (bool)PlaySoundsAnimCheckBox.IsChecked;
+            Globals.Settings.ShowFeelsLike = (bool)ShowFeelsLikeCheckBox.IsChecked;
+            Globals.Settings.RefreshInterval = WeatherIntervalSlider.Value;
+            Globals.Settings.TempScale = (bool)CelsiusRadioButton.IsChecked ? TemperatureScale.Celsius : TemperatureScale.Fahrenheit;
+            Globals.Settings.Scale = SizeSlider.Value / 100;
+            Globals.Settings.Opacity = 1 - (TransparencySlider.Value / 100);
+            Globals.Settings.UseAero = (bool)UseAeroCheckBox.IsChecked;
+            Globals.Settings.UseTrayIcon = !(bool)ShowTaskbarIconCheckBox.IsChecked;
+            Globals.Settings.Provider = WeatherProvidersBox.Text;
+            Globals.Settings.CheckForUpdates = (bool)UpdatesCheckBox.IsChecked;
+            Globals.Settings.ShowHW = (bool)ShowHWCheckBox.IsChecked;
+            Globals.Settings.SilentUpdate = (bool)SilentUpdateCheckBox.IsChecked;
+            Globals.Settings.EnableSounds = (bool)PlaySoundsAnimCheckBox.IsChecked;
 
-            if (App.Settings.UpdateInterval != UpdateFreqSlider.Value)
+            if (Globals.Settings.UpdateInterval != UpdateFreqSlider.Value)
             {
-                App.UpdateTimer.Interval = TimeSpan.FromMinutes(UpdateFreqSlider.Value);
-                App.UpdateTimer.Stop();
-                App.UpdateTimer.Start();
+                //App.UpdateTimer.Interval = TimeSpan.FromMinutes(UpdateFreqSlider.Value);
+                //App.UpdateTimer.Stop();
+                //App.UpdateTimer.Start();
             }
 
-            if (!App.Settings.CheckForUpdates)
+            if (!Globals.Settings.CheckForUpdates)
             {
-                App.UpdateTimer.Stop();
+                //App.UpdateTimer.Stop();
             }
 
-            App.Settings.UpdateInterval = (int)UpdateFreqSlider.Value;
+            Globals.Settings.UpdateInterval = (int)UpdateFreqSlider.Value;
 
-            if (App.Settings.UseTrayIcon)
-                ((App)Application.Current).AddTrayIcon();
-            else
-                ((App)Application.Current).RemoveTrayIcon();
+            //if (Globals.Settings.UseTrayIcon)
+            //    ((App)Application.Current).AddTrayIcon();
+            //else
+            //    ((App)Application.Current).RemoveTrayIcon();
 
-            var lastStyle = App.Settings.Style;
+            var lastStyle = Globals.Settings.Style;
             if ((bool)LargeStyle.IsChecked)
-                App.Settings.Style = Styles.Large;
+                Globals.Settings.Style = Styles.Large;
 
             if ((bool)MediumStyle.IsChecked)
-                App.Settings.Style = Styles.Medium;
+                Globals.Settings.Style = Styles.Medium;
 
             if ((bool)SmallStyle.IsChecked)
-                App.Settings.Style = Styles.Small;
+                Globals.Settings.Style = Styles.Small;
 
             if ((bool)MetroStyle.IsChecked)
-                App.Settings.Style = Styles.Metro;
+                Globals.Settings.Style = Styles.Metro;
 
-            foreach (WeatherProvider p in App.WpManager.Providers)
+            foreach (WeatherProvider p in Globals.WpManager.Providers)
             {
-                if (p.Name == App.Settings.Provider)
+                if (p.Name == Globals.Settings.Provider)
                 {
                     if (!p.IsLoaded)
                         p.Load();
-                    App.WpManager.CurrentProvider = p;
+                    Globals.WpManager.CurrentProvider = p;
                 }
             }
 
-            restartRequired = lastStyle != App.Settings.Style;
+            restartRequired = lastStyle != Globals.Settings.Style;
 
-            var lastLang = App.Settings.Language;
+            var lastLang = Globals.Settings.Language;
             if (LanguageComboBox.SelectedIndex >= 0)
-                App.Settings.Language = langCodes[LanguageComboBox.SelectedIndex];
+                Globals.Settings.Language = langCodes[LanguageComboBox.SelectedIndex];
 
             if (MphRadioButton.IsChecked == true)
-                App.Settings.WindSpeedScale = WindSpeedScale.Mph;
+                Globals.Settings.WindSpeedScale = WindSpeedScale.Mph;
             else if (KmhRadioButton.IsChecked == true)
-                App.Settings.WindSpeedScale = WindSpeedScale.Kmh;
+                Globals.Settings.WindSpeedScale = WindSpeedScale.Kmh;
             else
-                App.Settings.WindSpeedScale = WindSpeedScale.Ms;
+                Globals.Settings.WindSpeedScale = WindSpeedScale.Ms;
 
 
             if (!restartRequired)
-                restartRequired = lastLang != App.Settings.Language;
+                restartRequired = lastLang != Globals.Settings.Language;
 
-            if (App.Settings.Autostart != (bool)AutostartCheckBox.IsChecked)
+            if (Globals.Settings.Autostart != (bool)AutostartCheckBox.IsChecked)
             {
-                App.Settings.Autostart = (bool)AutostartCheckBox.IsChecked;
-                if (App.Settings.Autostart)
+                Globals.Settings.Autostart = (bool)AutostartCheckBox.IsChecked;
+                if (Globals.Settings.Autostart)
                 {
                     try
                     {
@@ -315,7 +308,7 @@ namespace Weather.Windows
                 }
             }
 
-            App.Settings.Save(App.ConfigFile);
+            Globals.Settings.Save(Globals.ConfigFile);
 
             if (UpdateSettings != null)
             {
@@ -378,7 +371,7 @@ namespace Weather.Windows
 
         private void GetLocations(string query)
         {
-            locations = App.WpManager.CurrentProvider.GetLocations(query, CultureInfo.GetCultureInfo(App.Settings.Language), App.Settings.TempScale);
+            locations = Globals.WpManager.CurrentProvider.GetLocations(query, CultureInfo.GetCultureInfo(Globals.Settings.Language), Globals.Settings.TempScale);
             if (locations != null && locations.Count > 0)
             {
                 foreach (var location in locations)
@@ -393,7 +386,7 @@ namespace Weather.Windows
                         location.CountryText = location.Country;
                         if (location.Skycode != 0 && location.Temperature != 0)
                         {
-                            location.TemperatureText = location.Temperature + "°";
+                            location.TemperatureText = location.Temperature + "�";
                             location.Icon = new BitmapImage(new Uri(string.Format("/UIFramework.Weather;Component/Images/weather_{0}.png", location.Skycode), UriKind.Relative));
                         }
                         SearchResultBox.Items.Add(location);
@@ -504,12 +497,12 @@ namespace Weather.Windows
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            App.Settings.OptionsWidth = Width;
-            App.Settings.OptionsHeight = Height;
+            Globals.Settings.OptionsWidth = Width;
+            Globals.Settings.OptionsHeight = Height;
 
             if (restartRequired)
             {
-                Process.Start(Application.ResourceAssembly.Location, "/c \"" + App.ConfigFile + "\"");
+                Process.Start(Application.ResourceAssembly.Location, "/c \"" + Globals.ConfigFile + "\"");
                 Application.Current.Shutdown();
             }
         }
@@ -555,8 +548,8 @@ namespace Weather.Windows
             d.Filter = "HTC Home Package (*.hhpack)|*.hhpack|All files (*.*)|*.*";
             if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var packageManager = new PackageManager();
-                packageManager.BeginUnpack(d.FileName, E.Root);
+                //var packageManager = new PackageManager();
+                //packageManager.BeginUnpack(d.FileName, E.Root);
             }
         }
 
@@ -570,7 +563,7 @@ namespace Weather.Windows
         {
             CheckUpdatesButton.IsEnabled = false;
 
-            var args = App.Settings.Language + " /wcheck";
+            var args = Globals.Settings.Language + " /wcheck";
             Process.Start(E.Root + "\\Update.exe", args);
         }
     }

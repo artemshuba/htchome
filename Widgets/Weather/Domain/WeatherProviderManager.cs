@@ -24,7 +24,7 @@ namespace Weather.Domain
                 foreach (var f in files)
                 {
                     var p = new WeatherProvider(f);
-                    if (App.Settings.Provider == p.Name)
+                    if (Globals.Settings.Provider == p.Name)
                     {
                         CurrentProvider = p;
                         p.Load();

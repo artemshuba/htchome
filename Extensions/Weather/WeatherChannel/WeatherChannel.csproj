@@ -1,31 +1,22 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Copyright>© Stealth 2021</Copyright>
+    <Copyright>� Stealth 2021</Copyright>
     <Authors>Stealth</Authors>
     <Version>1.0.4</Version>    
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>C:\Users\Artem\Desktop\HTC Home Repo\HTC Home\bin\Debug\Extras\Weather\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <OutputPath>..\..\bin\Release\Extras\Weather\</OutputPath>
+  <OutputPath>..\..\..\bin\$(Configuration)\Extras\Weather\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Home.Base\Home.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Weather.Base\Weather.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

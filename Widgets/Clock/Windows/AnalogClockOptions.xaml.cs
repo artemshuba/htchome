@@ -20,7 +20,6 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Clock.Controls;
 using Home.Base;
-using Home.Packaging;
 using Microsoft.Win32;
 using Weather.Base;
 using Path = System.IO.Path;
@@ -353,8 +352,9 @@ namespace Clock.Windows
             d.Filter = "HTC Home Package (*.hhpack)|*.hhpack|All files (*.*)|*.*";
             if (d.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                var packageManager = new PackageManager();
-                packageManager.BeginUnpack(d.FileName, E.Root);
+                // TODO: investigate and move later
+                //var packageManager = new PackageManager();
+                //packageManager.BeginUnpack(d.FileName, E.Root);
             }
         }
 

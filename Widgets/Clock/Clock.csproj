@@ -1,18 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>clock_icon.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\bin\Debug\Widgets\Clock\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\Widgets\Clock\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="Fonts\DroidSans.ttf" />
@@ -133,15 +127,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Home.Base\Home.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
-    <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj">
-      <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
-    </ProjectReference>
+
     <ProjectReference Include="..\..\Weather.Base\Weather.Base.csproj">
       <Private>true</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
   </ItemGroup>
 </Project>

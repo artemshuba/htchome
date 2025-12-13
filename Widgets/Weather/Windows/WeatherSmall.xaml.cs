@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -27,7 +27,7 @@ namespace Weather.Windows
     /// <summary>
     /// Interaction logic for WeatherWidget.xaml
     /// </summary>
-    public partial class WeatherSmall : Window
+    public partial class WeatherSmall : UserControl
     {
         private IntPtr handle;
         private WeatherData currentWeather;
@@ -44,51 +44,39 @@ namespace Weather.Windows
 
         private void WindowSourceInitialized(object sender, EventArgs e)
         {
-            handle = new WindowInteropHelper(this).Handle;
+            // this.Left = Globals.Settings.Left;
+            // this.Top = Globals.Settings.Top;
 
-            if (!App.Settings.DisableUnminimizer)
-            {
-                var u = new Unminimizer();
-                u.Initialize(handle);
-            }
+            // if (this.Left == -100.0f || this.Top == -100.0f)
+            // {
+            //    this.Left = SystemParameters.WorkArea.Width / 2 - this.Width / 2;
+            //    this.Top = SystemParameters.WorkArea.Height / 2 - this.Height / 2;
+            // }
 
-            Dwm.RemoveFromAeroPeek(handle);
-            Dwm.RemoveFromAltTab(handle);
-            Dwm.RemoveFromFlip3D(handle);
+            Scale.ScaleX = Globals.Settings.Scale;
+            this.Opacity = Globals.Settings.Opacity;
 
-            this.Left = App.Settings.Left;
-            this.Top = App.Settings.Top;
-
-            if (this.Left == -100.0f || this.Top == -100.0f)
-            {
-                this.Left = SystemParameters.WorkArea.Width / 2 - this.Width / 2;
-                this.Top = SystemParameters.WorkArea.Height / 2 - this.Height / 2;
-            }
-
-            Scale.ScaleX = App.Settings.Scale;
-            this.Opacity = App.Settings.Opacity;
-
-            if (App.Settings.UseAero)
+            if (Globals.Settings.UseAero)
             {
                 UpdateAero();
             }
 
-            if (App.Settings.TopMost)
+            if (Globals.Settings.TopMost)
             {
-                this.Topmost = true;
+                // // this.Topmost = true;
                 TopMostItem.IsChecked = true;
             }
 
-            if (App.Settings.Pin)
+            if (Globals.Settings.Pin)
                 PinItem.IsChecked = true;
 
-            this.ShowInTaskbar = !App.Settings.UseTrayIcon;
+            // this.ShowInTaskbar = !Globals.Settings.UseTrayIcon;
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
             currentLocation = new LocationData();
-            currentLocation.Code = App.Settings.LocationCode;
+            currentLocation.Code = Globals.Settings.LocationCode;
 
             currentWeather = (WeatherData)XmlSerializable.Load(typeof(WeatherData), E.Root + "\\Weather.data") ?? new WeatherData();
 
@@ -111,7 +99,7 @@ namespace Weather.Windows
             lastWeatherState = WeatherState.None;
 
             weatherTimer = new DispatcherTimer();
-            weatherTimer.Interval = TimeSpan.FromMinutes(App.Settings.RefreshInterval);
+            weatherTimer.Interval = TimeSpan.FromMinutes(Globals.Settings.RefreshInterval);
             weatherTimer.Tick += WeatherTimerTick;
             weatherTimer.Start();
 
@@ -127,14 +115,14 @@ namespace Weather.Windows
         private void RefreshWeather()
         {
             WeatherRefreshProgressBar.Visibility = System.Windows.Visibility.Visible;
-            Taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
+            //Taskbar.ProgressState = TaskbarItemProgressState.Indeterminate;
 
             ThreadStart threadStarter = () =>
             {
                 logger.Info("Getting weather report");
 
-                var w = App.WpManager.CurrentProvider.GetWeatherReport(CultureInfo.GetCultureInfo(App.Settings.Language), currentLocation,
-                        App.Settings.TempScale, App.Settings.WindSpeedScale, TimeZoneInfo.Local.BaseUtcOffset);
+                var w = Globals.WpManager.CurrentProvider.GetWeatherReport(CultureInfo.GetCultureInfo(Globals.Settings.Language), currentLocation,
+                        Globals.Settings.TempScale, Globals.Settings.WindSpeedScale, TimeZoneInfo.Local.BaseUtcOffset);
                 if (w != null)
                 {
                     logger.Info("Got weather report:");
@@ -161,7 +149,7 @@ namespace Weather.Windows
 
                 this.Dispatcher.Invoke((Action)delegate
                 {
-                    Taskbar.ProgressState = TaskbarItemProgressState.None;
+                    //Taskbar.ProgressState = TaskbarItemProgressState.None;
                 });
 
 
@@ -178,25 +166,25 @@ namespace Weather.Windows
                                                        {
                                                            LocationTextBlock.Text = currentWeather.Location.City;
                                                            var state = WeatherConverter.ConvertSkyCodeToWeatherState(currentWeather.Curent.SkyCode);
-                                                           if (state != lastWeatherState && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                                                           if (state != lastWeatherState && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                                                            {
                                                                SetWeatherState(state);
                                                            }
 
-                                                           this.Icon = WeatherIcon.Source;
-                                                           if (!string.IsNullOrEmpty(currentWeather.Curent.Text))
-                                                               this.Title = currentWeather.Curent.Text;
+                                                           // this.Icon = WeatherIcon.Source;
+                                                           //if (!string.IsNullOrEmpty(currentWeather.Curent.Text))
+                                                               // this.Title = currentWeather.Curent.Text;
                                                        });
             TempGrid.Dispatcher.Invoke((Action)delegate
                                            {
-                                               if (App.Settings.ShowFeelsLike)
-                                                   TemperatureTextBlock.Text = currentWeather.FeelsLike + "°";
+                                               if (Globals.Settings.ShowFeelsLike)
+                                                   TemperatureTextBlock.Text = currentWeather.FeelsLike + "�";
                                                else
-                                                   TemperatureTextBlock.Text = currentWeather.Temperature + "°";
+                                                   TemperatureTextBlock.Text = currentWeather.Temperature + "�";
 
                                                if (currentWeather.ForecastList.Count > 0)
                                                {
-                                                   TemperatureHLTextBlock.Text = currentWeather.ForecastList[0].HighTemperature + "°" + " / " + currentWeather.ForecastList[0].LowTemperature + "°";
+                                                   TemperatureHLTextBlock.Text = currentWeather.ForecastList[0].HighTemperature + "�" + " / " + currentWeather.ForecastList[0].LowTemperature + "�";
                                                }
                                            });
 
@@ -212,15 +200,15 @@ namespace Weather.Windows
 
         private void WindowMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && !App.Settings.Pin)
-                DragMove();
+            //if (e.LeftButton == MouseButtonState.Pressed && !Globals.Settings.Pin)
+                // DragMove();
         }
 
         private void WindowMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            App.Settings.Left = this.Left;
-            App.Settings.Top = this.Top;
-            App.Settings.Save(App.ConfigFile);
+            //Globals.Settings.Left = // this.Left;
+            //Globals.Settings.Top = // this.Top;
+            //Globals.Settings.Save(Globals.ConfigFile);
         }
 
         private void RefreshItemClick(object sender, RoutedEventArgs e)
@@ -239,10 +227,10 @@ namespace Weather.Windows
             optionsWindow = new Options();
             optionsWindow.UpdateSettings += OptionsWindowUpdateSettings;
 
-            optionsWindow.Width = App.Settings.OptionsWidth;
-            optionsWindow.Height = App.Settings.OptionsHeight;
+            optionsWindow.Width = Globals.Settings.OptionsWidth;
+            optionsWindow.Height = Globals.Settings.OptionsHeight;
 
-            if (App.Settings.Language == "he-IL" || App.Settings.Language == "ar-SA")
+            if (Globals.Settings.Language == "he-IL" || Globals.Settings.Language == "ar-SA")
             {
                 optionsWindow.FlowDirection = System.Windows.FlowDirection.RightToLeft;
             }
@@ -263,9 +251,9 @@ namespace Weather.Windows
                 RefreshWeather();
             }
 
-            if (weatherTimer.Interval.Minutes != App.Settings.RefreshInterval)
+            if (weatherTimer.Interval.Minutes != Globals.Settings.RefreshInterval)
             {
-                weatherTimer.Interval = TimeSpan.FromMinutes(App.Settings.RefreshInterval);
+                weatherTimer.Interval = TimeSpan.FromMinutes(Globals.Settings.RefreshInterval);
                 weatherTimer.Stop();
                 weatherTimer.Start();
             }
@@ -285,22 +273,22 @@ namespace Weather.Windows
                 SetupLocationTextBlock.Visibility = System.Windows.Visibility.Collapsed;
             }
 
-            Scale.ScaleX = App.Settings.Scale;
-            if (App.Settings.UseAero)
+            Scale.ScaleX = Globals.Settings.Scale;
+            if (Globals.Settings.UseAero)
                 UpdateAero();
             else
             {
-                Dwm.RemoveGlassRegion(ref handle);
+                // Dwm.RemoveGlassRegion(ref handle);
             }
 
-            this.ShowInTaskbar = !App.Settings.UseTrayIcon;
-            this.Opacity = App.Settings.Opacity;
+            // this.ShowInTaskbar = !Globals.Settings.UseTrayIcon;
+            this.Opacity = Globals.Settings.Opacity;
         }
 
         private void CloseItemClick(object sender, RoutedEventArgs e)
         {
             currentWeather.Save(E.Root + "\\Weather.data");
-            this.Close();
+            // this.Close();
         }
 
         private void UpdateAero()
@@ -314,22 +302,22 @@ namespace Weather.Windows
                 dpiY = source.CompositionTarget.TransformToDevice.M22;
             }
 
-            var rgn = WinAPI.CreateRoundRectRgn(0, (int)(10 * App.Settings.Scale * dpiY), (int)(this.Width * App.Settings.Scale * dpiX - 15 * App.Settings.Scale * dpiX),
-                (int)(this.Height * App.Settings.Scale * dpiY), (int)(5 * App.Settings.Scale * dpiX), (int)(dpiY * App.Settings.Scale * 5));
-            Dwm.MakeGlassRegion(ref handle, rgn);
+            var rgn = WinAPI.CreateRoundRectRgn(0, (int)(10 * Globals.Settings.Scale * dpiY), (int)(this.Width * Globals.Settings.Scale * dpiX - 15 * Globals.Settings.Scale * dpiX),
+                (int)(this.Height * Globals.Settings.Scale * dpiY), (int)(5 * Globals.Settings.Scale * dpiX), (int)(dpiY * Globals.Settings.Scale * 5));
+            // Dwm.MakeGlassRegion(ref handle, rgn);
         }
 
         private void TopMostItemClick(object sender, RoutedEventArgs e)
         {
-            if (App.Settings.TopMost)
+            if (Globals.Settings.TopMost)
             {
-                App.Settings.TopMost = false;
-                this.Topmost = false;
+                Globals.Settings.TopMost = false;
+                // // this.Topmost = false;
             }
             else
             {
-                App.Settings.TopMost = true;
-                this.Topmost = true;
+                Globals.Settings.TopMost = true;
+                // // this.Topmost = true;
             }
         }
 
@@ -352,74 +340,74 @@ namespace Weather.Windows
             {
                 case WeatherState.Clouds:
                     StartCloudAnimation();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_clouds.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_clouds.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.PartlyCloud:
                     StartPartlyCloudAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_clouds.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_clouds.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.PartlySunny:
                     StartPartlySunnyAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_clouds.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_clouds.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.HeavyRain:
                     StartRainAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_showers.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_showers.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.SmallRain:
                     StartRainAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_showers.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_showers.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.Storm:
                     StartLightningAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_thunder.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_thunder.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.Clear:
                     StartClearAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_sunny.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_sunny.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.Fog:
                     StartFogAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_fog.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_fog.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
                 case WeatherState.Wind:
                     StartWindAnim();
-                    if (App.SoundPlayer != null && App.Settings.EnableSounds && !string.IsNullOrEmpty(App.Settings.LocationCode))
+                    if (Globals.SoundPlayer != null && Globals.Settings.EnableSounds && !string.IsNullOrEmpty(Globals.Settings.LocationCode))
                     {
-                        App.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_windy.wav";
-                        App.SoundPlayer.Play();
+                        Globals.SoundPlayer.SoundLocation = E.ExtPath + "\\WeatherSounds\\sound_windy.wav";
+                        Globals.SoundPlayer.Play();
                     }
                     break;
             }
@@ -543,8 +531,8 @@ namespace Weather.Windows
 
         private void PinItemClick(object sender, RoutedEventArgs e)
         {
-            App.Settings.Pin = PinItem.IsChecked;
-            App.Settings.Save(App.ConfigFile);
+            Globals.Settings.Pin = PinItem.IsChecked;
+            Globals.Settings.Save(Globals.ConfigFile);
         }
 
         private void MouseEnterCompleted(object sender, EventArgs e)
@@ -554,7 +542,7 @@ namespace Weather.Windows
 
         private void MouseLeaveCompleted(object sender, EventArgs e)
         {
-            this.Opacity = App.Settings.Opacity;
+            this.Opacity = Globals.Settings.Opacity;
         }
 
         private void ThisMouseEnter(object sender, MouseEventArgs e)
@@ -566,7 +554,7 @@ namespace Weather.Windows
         private void ThisMouseLeave(object sender, MouseEventArgs e)
         {
             var mouseLeaveAnim = (Storyboard)Resources["MouseLeave"];
-            ((DoubleAnimation)mouseLeaveAnim.Children[0]).To = App.Settings.Opacity;
+            ((DoubleAnimation)mouseLeaveAnim.Children[0]).To = Globals.Settings.Opacity;
             mouseLeaveAnim.Begin(this);
         }
     }

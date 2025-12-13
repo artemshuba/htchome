@@ -1,21 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Copyright>© Stealth 2021</Copyright>
+    <Copyright>� Stealth 2021</Copyright>
     <Authors>Stealth</Authors>
     <Product>OpenWeatherMap weather provider</Product>    
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\bin\Debug\Extras\Weather\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\..\bin\Release\Extras\Weather\</OutputPath>
+  <OutputPath>..\..\..\bin\$(Configuration)\Extras\Weather\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="OpenWeatherMap.ext.xml">
@@ -25,11 +19,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Home.Base\Home.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Weather.Base\Weather.Base.csproj">
       <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

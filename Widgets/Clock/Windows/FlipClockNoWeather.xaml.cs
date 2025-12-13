@@ -24,7 +24,6 @@ using Clock.WeatherFx;
 using Home.Base;
 using Weather.Base;
 using Snowflake = Clock.WeatherAnimation.Snowflake;
-using Home.Packaging;
 
 namespace Clock.Windows
 {

@@ -1,30 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Shell;
 using System.Windows.Threading;
 using Clock.Controls;
 using Clock.Domain;
 using Clock.WeatherAnimation;
-using Clock.WeatherAnimationNew;
-using Clock.WeatherFx;
 using Home.Base;
 using Weather.Base;
-using Snowflake = Clock.WeatherAnimation.Snowflake;
-using Home.Packaging;
 
 namespace Clock.Windows
 {
