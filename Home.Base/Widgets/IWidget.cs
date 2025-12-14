@@ -4,6 +4,6 @@ namespace Home.Base.Widgets
 {
     public interface IWidget
     {
-        public FrameworkElement GetView();
+        FrameworkElement CreateView();
     }
 }

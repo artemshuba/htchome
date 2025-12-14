@@ -5,6 +5,6 @@ namespace Clock
 {
     public class Widget : IWidget
     {
-        public FrameworkElement GetView() => new WidgetView();
+        public FrameworkElement CreateView() => new WidgetView();
     }
 }
