@@ -1,5 +1,6 @@
 ﻿{
   "id": "clock",
   "displayName": "Clock",
-  "assemblyName": "Clock.dll"
+  "assemblyName": "Clock.dll",
+  "isDefault": true
 }

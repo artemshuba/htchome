@@ -52,5 +52,6 @@
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="5.0.2" />
   </ItemGroup>
   <PropertyGroup>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>

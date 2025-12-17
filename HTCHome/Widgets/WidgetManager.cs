@@ -1,7 +1,9 @@
 ﻿using Home.Base;
 using Home.Base.Widgets;
+using HTCHome.Utils.Helpers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,7 +12,6 @@ using System.Runtime.Loader;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 
 namespace HTCHome.Widgets
 {
@@ -18,24 +19,53 @@ namespace HTCHome.Widgets
     {
         private const string WIDGETS_DIR = "Widgets";
         private const string WIDGET_MANIFEST = "widget.json";
+        private const string WIDGET_STATE = "widget_state.json";
         private string _widgetsRootPath = Path.Combine(E.Root, WIDGETS_DIR);
 
-        private List<WidgetDescriptor> _widgets = new List<WidgetDescriptor>();
+        private Dictionary<string, WidgetDescriptor> _catalog = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, WidgetInstance> _instances = new(StringComparer.OrdinalIgnoreCase);
 
-        private WidgetManager()
+        private IStateStore _stateStore;
+
+        public IReadOnlyList<String> RunningWidgetIds => _instances.Values.Select(i => i.WidgetId).ToList();
+
+        private WidgetManager(IStateStore stateStore)
         { 
+            _stateStore = stateStore;
         }
 
-        public static async Task<WidgetManager> CreateAsync()
+        public static async Task<WidgetManager> CreateAsync(IStateStore stateStore)
         {
-            var widgetManager = new WidgetManager();
+            var widgetManager = new WidgetManager(stateStore);
             await widgetManager.InitializeAsync();
             return widgetManager;
         }
 
-        public void LoadWidgetAsync(string id)
+        public async Task LoadWidgetsAsync(IList<string>? widgets)
         {
-            var manifest = _widgets.FirstOrDefault(w => w.Manifest.Id == id);
+            if (widgets != null && widgets.Count > 0)
+            {
+                foreach (var widgetId in widgets)
+                {
+                    await LoadWidgetAsync(widgetId);
+                }
+            }
+
+            // If we got running widgets, skip loading default ones
+            if (_instances.Count > 0)
+                return;
+
+            var defaultWidgets = _catalog.Values.Where(w => w.Manifest.IsDefault).ToList();
+
+            foreach (var widget in defaultWidgets)
+            {
+                await LoadWidgetAsync(widget.Manifest.Id);
+            }
+        }
+
+        public async Task LoadWidgetAsync(string id)
+        {
+            var manifest = _catalog.GetValueOrDefault(id);
             if (manifest == null)
                 return; // TODO: throw exception?
 
@@ -51,19 +81,79 @@ namespace HTCHome.Widgets
                 return; // TODO: throw exception?
             }
 
+            var widgetStatePath = Path.Combine(manifest.DirectoryPath, WIDGET_STATE);
+            var widgetState = await _stateStore.LoadAsync<WidgetState>(widgetStatePath);
+
             var widget = Activator.CreateInstance(widgetType) as IWidget;
+            if (widget == null)
+                return; // TODO: throw exception?
             var widgetView = widget.CreateView();
             var window = new WidgetWindow();
 
-            window.SizeToContent = SizeToContent.WidthAndHeight;
+            if (widgetState != null)
+            {
+                window.Left = widgetState.X;
+                window.Top = widgetState.Y;
+                window.WindowStartupLocation = WindowStartupLocation.Manual;
+            }
+
             window.Content = widgetView;
+            window.Closing += WidgetWindow_Closing;
+            window.RemoveRequested += WidgetWindow_RemoveRequested;
 
             window.Show();
+
+            var instance = new WidgetInstance()
+            {
+                WidgetId = id,
+                InstanceId = Guid.NewGuid().ToString("N"),
+                Widget = widget,
+                Window = window,
+                AssemblyLoadContext = assemblyContext
+            };
+
+            _instances[instance.InstanceId] = instance;
+        }
+
+        public async Task ShutdownAsync()
+        {
+        }
+
+        private async Task SaveWidgetStateAsync(WidgetInstance instance)
+        {
+            var widgetDescriptor = _catalog[instance.WidgetId];
+            if (widgetDescriptor == null)
+            {
+                return;
+            }
+
+            var widgetStatePath = Path.Combine(widgetDescriptor.DirectoryPath, WIDGET_STATE);
+
+            var state = new WidgetState()
+            {
+                X = (float)instance.Window.Left,
+                Y = (float)instance.Window.Top
+            };
+
+            await _stateStore.SaveAsync(state, widgetStatePath);
+        }
+
+        private void DeleteWidgetState(WidgetInstance instance)
+        {
+            var widgetDescriptor = _catalog[instance.WidgetId];
+            if (widgetDescriptor == null)
+            {
+                return;
+            }
+
+            var widgetStatePath = Path.Combine(widgetDescriptor.DirectoryPath, WIDGET_STATE);
+
+            _stateStore.Delete(widgetStatePath);
         }
 
         private async Task InitializeAsync()
         {
-            _widgets = await EnumerateWidgetsAsync();
+            _catalog = (await EnumerateWidgetsAsync()).ToDictionary(d => d.Manifest.Id, d => d, StringComparer.OrdinalIgnoreCase);
         }
 
         private async Task<List<WidgetDescriptor>> EnumerateWidgetsAsync()
@@ -110,6 +200,35 @@ namespace HTCHome.Widgets
 
             return result;
         }
+        private async void WidgetWindow_Closing(object? sender, CancelEventArgs e)
+        {
+            var widgetInstance = _instances.Values.FirstOrDefault(i => i.Window == sender);
+            if (widgetInstance != null)
+            {
+                await SaveWidgetStateAsync(widgetInstance);
+            }
+
+            Application.Current.Shutdown();
+        }
+
+        private async void WidgetWindow_RemoveRequested(object? sender, EventArgs e)
+        {
+            var widgetInstance = _instances.Values.FirstOrDefault(i => i.Window == sender);
+            if (widgetInstance != null)
+            {
+                DeleteWidgetState(widgetInstance);
+
+                widgetInstance.Window.Closing -= WidgetWindow_Closing;
+                widgetInstance.Window.RemoveRequested -= WidgetWindow_RemoveRequested;
+
+                _instances.Remove(widgetInstance.InstanceId);
+            }
+
+            if (_instances.Count == 0)
+            {
+                Application.Current.Shutdown();
+            }
+        }
     }
 
     class WidgetLoadContext : AssemblyLoadContext
@@ -121,15 +240,13 @@ namespace HTCHome.Widgets
             _resolver = new AssemblyDependencyResolver(path);
         }
 
-        protected override Assembly Load(AssemblyName assemblyName)
+        protected override Assembly? Load(AssemblyName assemblyName)
         {
             var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-            if (!string.IsNullOrEmpty(assemblyPath))
-            {
-                return LoadFromAssemblyPath(assemblyPath);
-            }
+            if (string.IsNullOrEmpty(assemblyPath))
+                return null;
 
-            return null;
+            return LoadFromAssemblyPath(assemblyPath);
         }
     }
 }
