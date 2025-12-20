@@ -123,6 +123,13 @@
     <Resource Include="Resources\FlipClock\wide_forecast_base.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Skins\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

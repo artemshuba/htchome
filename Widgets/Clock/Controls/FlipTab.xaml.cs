@@ -12,7 +12,17 @@ namespace Clock.Controls
     /// </summary>
     public partial class FlipTab : UserControl
     {
-        private const string Path = "pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png";
+        private string DigitPathFormat 
+        {
+            get 
+            {
+                if (System.Windows.Application.Current.Resources.Contains("DigitPathFormat"))
+                {
+                    return (string)System.Windows.Application.Current.Resources["DigitPathFormat"];
+                }
+                return "pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png";
+            }
+        }
 
         private bool _isFlipping = false;
         private bool _isInitialValueChange = true;
@@ -111,13 +121,13 @@ namespace Clock.Controls
 
             if (animated)
             {
-                BgLeftDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, firstDigit), UriKind.Absolute));
-                BgRightDigitTop.Source = new BitmapImage(new Uri(string.Format(Path, lastDigit), UriKind.Absolute));
+                BgLeftDigitTop.Source = new BitmapImage(new Uri(string.Format(DigitPathFormat, firstDigit), UriKind.Absolute));
+                BgRightDigitTop.Source = new BitmapImage(new Uri(string.Format(DigitPathFormat, lastDigit), UriKind.Absolute));
             }
             else
             {
-                BgLeftDigitBottom.Source = new BitmapImage(new Uri(string.Format(Path, firstDigit), UriKind.Absolute));
-                BgRightDigitBottom.Source = new BitmapImage(new Uri(string.Format(Path, lastDigit), UriKind.Absolute));
+                BgLeftDigitBottom.Source = new BitmapImage(new Uri(string.Format(DigitPathFormat, firstDigit), UriKind.Absolute));
+                BgRightDigitBottom.Source = new BitmapImage(new Uri(string.Format(DigitPathFormat, lastDigit), UriKind.Absolute));
             }
 
             //if (timeMode != -1)

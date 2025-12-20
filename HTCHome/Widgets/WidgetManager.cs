@@ -1,5 +1,7 @@
 ﻿using Home.Base;
+using Home.Base.Services;
 using Home.Base.Widgets;
+using HTCHome.Services;
 using HTCHome.Utils.Helpers;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,7 @@ using System.Runtime.Loader;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace HTCHome.Widgets
 {
@@ -19,196 +22,376 @@ namespace HTCHome.Widgets
     {
         private const string WIDGETS_DIR = "Widgets";
         private const string WIDGET_MANIFEST = "widget.json";
-        private const string WIDGET_STATE = "widget_state.json";
+        private const string CONFIG_DIR = "Config";
+        private const string LAYOUT_FILE = "layout.json";
+
         private string _widgetsRootPath = Path.Combine(E.Root, WIDGETS_DIR);
+        private string _configRootPath;
 
         private Dictionary<string, WidgetDescriptor> _catalog = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, WidgetInstance> _instances = new(StringComparer.OrdinalIgnoreCase);
 
-        private IStateStore _stateStore;
+        // Services
+        private ILogger _logger;
+        private ExtensionManager _extensionManager;
+        private NetworkService _networkService;
+        
+        public IReadOnlyList<string> RunningWidgetIds => _instances.Values.Select(i => i.WidgetId).ToList();
 
-        public IReadOnlyList<String> RunningWidgetIds => _instances.Values.Select(i => i.WidgetId).ToList();
-
-        private WidgetManager(IStateStore stateStore)
+        private WidgetManager()
         { 
-            _stateStore = stateStore;
+            // Initialize Config Path (Try AppDir, fallback to AppData)
+            _configRootPath = Path.Combine(E.Root, CONFIG_DIR);
+            try
+            {
+                if (!Directory.Exists(_configRootPath))
+                    Directory.CreateDirectory(_configRootPath);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                _configRootPath = Path.Combine(appData, "HTCHome", CONFIG_DIR);
+                if (!Directory.Exists(_configRootPath))
+                    Directory.CreateDirectory(_configRootPath);
+            }
+
+            // Initialize Services
+            _logger = new FileLogger(Path.Combine(_configRootPath, "Logs", $"htchome.log"));
+            _extensionManager = new ExtensionManager();
+            _networkService = new NetworkService();
         }
 
-        public static async Task<WidgetManager> CreateAsync(IStateStore stateStore)
+        public static async Task<WidgetManager> CreateAsync()
         {
-            var widgetManager = new WidgetManager(stateStore);
+            var widgetManager = new WidgetManager();
             await widgetManager.InitializeAsync();
             return widgetManager;
         }
 
+        private async Task InitializeAsync()
+        {
+            _logger.Info("Initializing WidgetManager...");
+            
+            // 1. Load Catalogue
+            _catalog = (await EnumerateWidgetsAsync()).ToDictionary(d => d.Manifest.Id, d => d, StringComparer.OrdinalIgnoreCase);
+            _logger.Info($"Loaded {_catalog.Count} widgets in catalog.");
+
+            // 2. Load Extensions (TODO)
+             // await _extensionManager.LoadExtensionsAsync(Path.Combine(E.Root, "Extensions"));
+
+            // 3. Restore Layout
+            // 3. Restore Layout
+            await RestoreLayoutAsync();
+
+            // 4. Load Defaults if no layout
+            if (_instances.Count == 0)
+            {
+                var defaults = _catalog.Values.Where(w => w.Manifest.IsDefault).ToList();
+                if (defaults.Count > 0)
+                {
+                    _logger.Info($"No layout found. Loading {defaults.Count} default widgets.");
+                    foreach (var widget in defaults)
+                    {
+                        await LoadWidgetInstanceAsync(widget.Manifest.Id, null);
+                    }
+                }
+                else
+                {
+                     _logger.Info("No layout found and no default widgets defined.");
+                }
+            }
+        }
+
         public async Task LoadWidgetsAsync(IList<string>? widgets)
         {
+            // This method seems to be used for initial load "suggestions" or CLI args?
+            // If we have saved layout, we prefer that.
+            if (_instances.Count > 0)
+                return;
+
             if (widgets != null && widgets.Count > 0)
             {
                 foreach (var widgetId in widgets)
                 {
-                    await LoadWidgetAsync(widgetId);
+                    await LoadWidgetInstanceAsync(widgetId, null);
                 }
             }
-
-            // If we got running widgets, skip loading default ones
-            if (_instances.Count > 0)
-                return;
-
-            var defaultWidgets = _catalog.Values.Where(w => w.Manifest.IsDefault).ToList();
-
-            foreach (var widget in defaultWidgets)
+            else
             {
-                await LoadWidgetAsync(widget.Manifest.Id);
+               // Load defaults
+                var defaultWidgets = _catalog.Values.Where(w => w.Manifest.IsDefault).ToList();
+                foreach (var widget in defaultWidgets)
+                {
+                    await LoadWidgetInstanceAsync(widget.Manifest.Id, null);
+                }
             }
         }
-
+        
         public async Task LoadWidgetAsync(string id)
         {
-            var manifest = _catalog.GetValueOrDefault(id);
-            if (manifest == null)
-                return; // TODO: throw exception?
+            await LoadWidgetInstanceAsync(id, null);
+        }
 
-            var assemblyPath = Path.Combine(manifest.DirectoryPath, manifest.Manifest.AssemblyName);
-            var assemblyContext = new WidgetLoadContext(assemblyPath);
-            var assembly = assemblyContext.LoadFromAssemblyName(new AssemblyName(manifest.Manifest.Id));
-            var widgetType = assembly.GetExportedTypes().Where(type => typeof(IWidget).IsAssignableFrom(type)).FirstOrDefault();
+        private async Task LoadWidgetInstanceAsync(string widgetId, WidgetLayoutItem? layoutItem)
+        {
+            _logger.Info($"Loading widget {widgetId}...");
 
-            if (widgetType == null)
+            if (!_catalog.TryGetValue(widgetId, out var descriptor))
             {
-                // TODO: logging
-                Debug.WriteLine($"Dll {assembly} doesn't contain widget type.");
-                return; // TODO: throw exception?
+                _logger.Error($"Widget {widgetId} not found in catalog.");
+                return;
             }
 
-            var widgetStatePath = Path.Combine(manifest.DirectoryPath, WIDGET_STATE);
-            var widgetState = await _stateStore.LoadAsync<WidgetState>(widgetStatePath);
+            WidgetLoadContext? loadContext = null;
+            IWidget? widget = null;
+            WidgetWindow? window = null;
 
-            var widget = Activator.CreateInstance(widgetType) as IWidget;
-            if (widget == null)
-                return; // TODO: throw exception?
-            var widgetView = widget.CreateView();
-            var window = new WidgetWindow();
-
-            if (widgetState != null)
+            try
             {
-                window.Left = widgetState.X;
-                window.Top = widgetState.Y;
-                window.WindowStartupLocation = WindowStartupLocation.Manual;
+                var assemblyPath = Path.Combine(descriptor.DirectoryPath, descriptor.Manifest.AssemblyName);
+                
+                // TODO: Determine if we can reuse LoadContext for same widget type? 
+                // For now, creating separate contexts allows unloading individual instances safely (if needed) 
+                // or cleaner separation. But for memory, shared context per WidgetType is better.
+                // However, user Requirement said "support multiple instances".
+                // AssemblyLoadContext per Plugin (Widget Type) is standard.
+                // Let's create new context for each instance for maximum isolation for now.
+                loadContext = new WidgetLoadContext(assemblyPath);
+                
+                var assembly = loadContext.LoadFromAssemblyName(new AssemblyName(descriptor.Manifest.Id));
+                var widgetType = assembly.GetExportedTypes().FirstOrDefault(type => typeof(IWidget).IsAssignableFrom(type));
+
+                if (widgetType == null)
+                {
+                    _logger.Error($"Assembly {assemblyPath} does not contain an IWidget implementation.");
+                    loadContext.Unload();
+                    return;
+                }
+
+                widget = Activator.CreateInstance(widgetType) as IWidget;
+                if (widget == null)
+                {
+                    _logger.Error($"Failed to instantiate widget {widgetType.Name}");
+                    loadContext.Unload();
+                    return;
+                }
+
+                // Prepare Context
+                string instanceId = layoutItem?.InstanceId ?? Guid.NewGuid().ToString("N");
+                string configPath = Path.Combine(_configRootPath, "Widgets", instanceId + ".json");
+                
+                var configService = new JsonConfigurationService(configPath);
+                await configService.LoadAsync();
+
+                var widgetContext = new WidgetContext(
+                    instanceId, 
+                    widgetId,
+                    descriptor.DirectoryPath,
+                    _logger,
+                    configService,
+                    _networkService,
+                    _extensionManager);
+
+                // Initialize Widget
+                widget.Initialize(widgetContext);
+
+                // Create View
+                var view = widget.CreateView();
+                
+                // Create Window
+                window = new WidgetWindow();
+                window.Content = view;
+
+                // Position
+                if (layoutItem != null)
+                {
+                    window.Left = layoutItem.X;
+                    window.Top = layoutItem.Y;
+                    window.WindowStartupLocation = WindowStartupLocation.Manual;
+                }
+                else
+                {
+                    window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+
+                window.Closing += WidgetWindow_Closing;
+                window.RemoveRequested += WidgetWindow_RemoveRequested;
+                window.ExitRequested += (s, e) => Application.Current.Shutdown();
+                window.SettingsRequested += (s, e) => 
+                {
+                    if (widget is IConfigurableWidget configurable)
+                    {
+                        try
+                        {
+                            var settingsView = configurable.CreateSettingsView();
+                            var settingsWindow = new SettingsWindow($"Settings - {descriptor.Manifest.DisplayName}", settingsView);
+                            settingsWindow.ShowDialog();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error($"Failed to open settings for {widgetId}", ex);
+                            MessageBox.Show($"Error opening settings: {ex.Message}", "HTC Home", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("This widget has no settings.", "HTC Home", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                };
+
+
+
+                // Populate Add Widget Menu
+                if (window.ContextMenu.Items[0] is MenuItem addWidgetMenu) 
+                {
+                    foreach(var kvp in _catalog)
+                    {
+                        var item = new MenuItem { Header = kvp.Value.Manifest.DisplayName };
+                        item.Click += async (s, e) => await LoadWidgetInstanceAsync(kvp.Key, null);
+                        addWidgetMenu.Items.Add(item);
+                    }
+                }
+
+                window.Show();
+
+                var instance = new WidgetInstance()
+                {
+                    InstanceId = instanceId,
+                    WidgetId = widgetId,
+                    Widget = widget,
+                    Window = window,
+                    AssemblyLoadContext = loadContext
+                };
+
+                _instances[instanceId] = instance;
+                _logger.Info($"Widget {widgetId} ({instanceId}) loaded successfully.");
             }
-
-            window.Content = widgetView;
-            window.Closing += WidgetWindow_Closing;
-            window.RemoveRequested += WidgetWindow_RemoveRequested;
-
-            window.Show();
-
-            var instance = new WidgetInstance()
+            catch (Exception ex)
             {
-                WidgetId = id,
-                InstanceId = Guid.NewGuid().ToString("N"),
-                Widget = widget,
-                Window = window,
-                AssemblyLoadContext = assemblyContext
-            };
-
-            _instances[instance.InstanceId] = instance;
+                _logger.Error($"Failed to load widget {widgetId}", ex);
+                // Cleanup
+                // window?.Close(); // Window might be phantom
+                if (loadContext != null)
+                {
+                    try { loadContext.Unload(); } catch { }
+                }
+            }
         }
 
         public async Task ShutdownAsync()
         {
+            await SaveLayoutAsync();
+            foreach(var instance in _instances.Values)
+            {
+                try
+                {
+                    instance.Widget.Unload();
+                    instance.Window.Close();
+                }
+                catch(Exception ex)
+                {
+                    _logger.Error($"Error unloading instance {instance.InstanceId}", ex);
+                }
+            }
+            _instances.Clear();
         }
 
-        private async Task SaveWidgetStateAsync(WidgetInstance instance)
+        private async Task SaveLayoutAsync()
         {
-            var widgetDescriptor = _catalog[instance.WidgetId];
-            if (widgetDescriptor == null)
+            var layout = new List<WidgetLayoutItem>();
+            foreach (var instance in _instances.Values)
             {
-                return;
+                layout.Add(new WidgetLayoutItem
+                {
+                    WidgetId = instance.WidgetId,
+                    InstanceId = instance.InstanceId,
+                    X = instance.Window.Left,
+                    Y = instance.Window.Top
+                });
             }
 
-            var widgetStatePath = Path.Combine(widgetDescriptor.DirectoryPath, WIDGET_STATE);
-
-            var state = new WidgetState()
+            try
             {
-                X = (float)instance.Window.Left,
-                Y = (float)instance.Window.Top
-            };
-
-            await _stateStore.SaveAsync(state, widgetStatePath);
-        }
-
-        private void DeleteWidgetState(WidgetInstance instance)
-        {
-            var widgetDescriptor = _catalog[instance.WidgetId];
-            if (widgetDescriptor == null)
-            {
-                return;
+                var layoutPath = Path.Combine(_configRootPath, LAYOUT_FILE);
+                var json = JsonSerializer.Serialize(layout, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(layoutPath, json);
             }
-
-            var widgetStatePath = Path.Combine(widgetDescriptor.DirectoryPath, WIDGET_STATE);
-
-            _stateStore.Delete(widgetStatePath);
+            catch (Exception ex)
+            {
+                _logger.Error("Failed to save layout", ex);
+            }
         }
 
-        private async Task InitializeAsync()
+        private async Task RestoreLayoutAsync()
         {
-            _catalog = (await EnumerateWidgetsAsync()).ToDictionary(d => d.Manifest.Id, d => d, StringComparer.OrdinalIgnoreCase);
+            var layoutPath = Path.Combine(_configRootPath, LAYOUT_FILE);
+            if (!File.Exists(layoutPath)) return;
+
+            try
+            {
+                var json = await File.ReadAllTextAsync(layoutPath);
+                var layout = JsonSerializer.Deserialize<List<WidgetLayoutItem>>(json);
+                if (layout != null)
+                {
+                    foreach (var item in layout)
+                    {
+                        await LoadWidgetInstanceAsync(item.WidgetId, item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Failed to restore layout", ex);
+            }
         }
 
         private async Task<List<WidgetDescriptor>> EnumerateWidgetsAsync()
         {
             var result = new List<WidgetDescriptor>();
+            if (!Directory.Exists(_widgetsRootPath))
+            {
+                 Directory.CreateDirectory(_widgetsRootPath);
+                 return result;
+            }
+
             var dirs = Directory.EnumerateDirectories(_widgetsRootPath);
 
             foreach (var widgetDir in dirs)
             {
                 var manifestPath = Path.Combine(widgetDir, WIDGET_MANIFEST);
-                if (!File.Exists(manifestPath))
-                    continue; // skip if there is no manifest in the directory
+                if (!File.Exists(manifestPath)) continue;
 
                 try
                 {
                     var manifestJson = await File.ReadAllTextAsync(manifestPath);
                     var manifest = JsonSerializer.Deserialize<WidgetManifest>(manifestJson, options: new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    if (manifest == null)
-                        continue; // skip if manifest is broken
-
-                    if (String.IsNullOrEmpty(manifest.Id) || String.IsNullOrEmpty(manifest.DisplayName) || String.IsNullOrEmpty(manifest.AssemblyName))
-                        continue; // skip if manifest is not valid
-
-                    var assemblyPath = Path.Combine(widgetDir, manifest.AssemblyName);
-
-                    if (!File.Exists(assemblyPath))
-                        continue; // skip if assembly does not exist
-
-                    // if everything looks fine, add to the list
-                    var descriptor = new WidgetDescriptor()
+                    
+                    if (manifest != null && !string.IsNullOrEmpty(manifest.Id))
                     {
-                        Manifest = manifest,
-                        DirectoryPath = widgetDir
-                    };
-
-                    result.Add(descriptor);
+                        result.Add(new WidgetDescriptor
+                        {
+                            Manifest = manifest,
+                            DirectoryPath = widgetDir
+                        });
+                    }
                 }
                 catch (Exception ex)
                 {
-                    // TODO: logging
-                    Debug.WriteLine($"Failed to load widget manifest from {manifestPath}: {ex.Message}");
+                    _logger.Error($"Failed to load manifest from {manifestPath}", ex);
                 }
             }
 
             return result;
         }
+
         private async void WidgetWindow_Closing(object? sender, CancelEventArgs e)
         {
-            var widgetInstance = _instances.Values.FirstOrDefault(i => i.Window == sender);
-            if (widgetInstance != null)
-            {
-                await SaveWidgetStateAsync(widgetInstance);
-            }
-
-            Application.Current.Shutdown();
+             // This event fires when Close() is called or Alt+F4
+             // If generic Close, we probably want to Exit app if it's the last window?
+             // Or just Save layout?
+             // Actually, if we just close window, we are not removing the widget.
+             // But if we Exit App, windows are closed.
+             // Let's defer "App Shutdown" logic to App.xaml.cs, here we just track instances.
         }
 
         private async void WidgetWindow_RemoveRequested(object? sender, EventArgs e)
@@ -216,26 +399,56 @@ namespace HTCHome.Widgets
             var widgetInstance = _instances.Values.FirstOrDefault(i => i.Window == sender);
             if (widgetInstance != null)
             {
-                DeleteWidgetState(widgetInstance);
+                // Remove
+                _instances.Remove(widgetInstance.InstanceId);
+                
+                try 
+                {
+                    widgetInstance.Widget.Unload();
+                }
+                catch(Exception ex) 
+                {
+                    _logger.Error("Error unloading widget", ex);
+                }
 
+                // Unsubscribe events to avoid leaks
                 widgetInstance.Window.Closing -= WidgetWindow_Closing;
                 widgetInstance.Window.RemoveRequested -= WidgetWindow_RemoveRequested;
 
-                _instances.Remove(widgetInstance.InstanceId);
+                // Close Window
+                widgetInstance.Window.Close();
+
+                // Delete state?
+                 // var configPath = Path.Combine(_configRootPath, "Widgets", widgetInstance.InstanceId + ".json");
+                 // File.Delete(configPath); 
+                 // Maybe keep state if user wants to undo? Or stricter cleanup? 
+                 // User said "Widget unloading should be done...". Usually implies full removal.
             }
 
             if (_instances.Count == 0)
             {
-                Application.Current.Shutdown();
+                 Application.Current.Shutdown();
+            }
+            else
+            {
+                 await SaveLayoutAsync();
             }
         }
+    }
+
+    public class WidgetLayoutItem
+    {
+        public string InstanceId { get; set; } = "";
+        public string WidgetId { get; set; } = "";
+        public double X { get; set; }
+        public double Y { get; set; }
     }
 
     class WidgetLoadContext : AssemblyLoadContext
     {
         private AssemblyDependencyResolver _resolver;
 
-        public WidgetLoadContext(string path)
+        public WidgetLoadContext(string path) : base(isCollectible: true)
         {
             _resolver = new AssemblyDependencyResolver(path);
         }

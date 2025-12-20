@@ -1,0 +1,24 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Backgrounds - Swapped to Modern variant -->
+    <BitmapImage x:Key="ClockBackground" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/modern_base_default.png"/>
+    
+    <!-- FlipTab Images - Reusing same for now as we don't have others, but could tint if we had code support -->
+    <BitmapImage x:Key="FlipTabBackground" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_bg.png"/>
+    <BitmapImage x:Key="FlipTabShadow" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_shadow.png"/>
+    <BitmapImage x:Key="FlipTabDivider" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_divider.png"/>
+    <BitmapImage x:Key="FlipTabCardUp" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_up.png"/>
+    <BitmapImage x:Key="FlipTabCardDown" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_down.png"/>
+    
+    <!-- Digit Path Format -->
+    <sys:String x:Key="DigitPathFormat">pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png</sys:String>
+
+    <!-- Text Style -->
+    <Style x:Key="WidgetTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Consolas"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="#FFAAAA"/>
+    </Style>
+</ResourceDictionary>

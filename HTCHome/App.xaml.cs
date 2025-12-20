@@ -11,21 +11,17 @@ namespace HTCHome
     /// </summary>
     public partial class App : Application
     {
-        private const string APP_STATE = "app_state.json";
-
         private WidgetManager? _widgetManager;
-        private JsonStateFileStore _stateStore = new JsonStateFileStore();
+
 
         protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var appState = await _stateStore.LoadAsync<AppState>(APP_STATE);
-
-            var widgetManager = await WidgetManager.CreateAsync(_stateStore);
-
-            await widgetManager.LoadWidgetsAsync(appState?.Widgets);
-
+            // WidgetManager handles restore internaly now
+            var widgetManager = await WidgetManager.CreateAsync();
+            
+            // Optionally update properties if needed, but WidgetManager is self-contained for layout
             _widgetManager = widgetManager;
         }
 
@@ -34,14 +30,6 @@ namespace HTCHome
             if (_widgetManager != null)
                 await _widgetManager.ShutdownAsync();
 
-            var runningWidgetIds = _widgetManager?.RunningWidgetIds;
-
-            var appState = new AppState();
-            if (runningWidgetIds != null)
-                appState.Widgets = runningWidgetIds.ToList();
-
-            await _stateStore.SaveAsync(appState, APP_STATE);
-            
             base.OnExit(e);
         }
     }
