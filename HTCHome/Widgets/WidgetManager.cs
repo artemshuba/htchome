@@ -216,6 +216,20 @@ namespace HTCHome.Widgets
                 window.Closing += WidgetWindow_Closing;
                 window.RemoveRequested += WidgetWindow_RemoveRequested;
                 window.ExitRequested += (s, e) => Application.Current.Shutdown();
+                window.GlobalSettingsRequested += (s, e) =>
+                {
+                    try
+                    {
+                        var settingsView = new GlobalSettingsControl();
+                        var settingsWindow = new SettingsWindow("HTC Home Settings", settingsView);
+                        settingsWindow.ShowDialog();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to open Global Settings", ex);
+                        MessageBox.Show($"Error opening settings: {ex.Message}", "HTC Home", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                };
                 window.SettingsRequested += (s, e) => 
                 {
                     if (widget is IConfigurableWidget configurable)
@@ -431,6 +445,21 @@ namespace HTCHome.Widgets
             else
             {
                  await SaveLayoutAsync();
+            }
+        }
+        public void ToggleWidgetsVisibility()
+        {
+            foreach (var instance in _instances.Values)
+            {
+                if (instance.Window.Visibility == Visibility.Visible)
+                {
+                    instance.Window.Hide();
+                }
+                else
+                {
+                    instance.Window.Show();
+                    instance.Window.Activate();
+                }
             }
         }
     }

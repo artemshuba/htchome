@@ -11,6 +11,11 @@
     <BitmapImage x:Key="FlipTabCardDown" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_down.png"/>
     <sys:String x:Key="DigitPathFormat">pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png</sys:String>
 
+    <!-- Glass Region (Win 7 Aero) -->
+    <!-- Defines the area where blur should be applied. Relative to Widget Window. -->
+    <!-- Disabled because I don't have Win7 to test it -->
+    <!-- <RectangleGeometry x:Key="WidgetGlassRegion" Rect="15,45,470,230" RadiusX="10" RadiusY="10"/> -->
+
     <!-- Widget Visual Layout -->
     <DataTemplate x:Key="WidgetVisual">
         <Grid Margin="100,15,100,0" Width="500" Height="200">

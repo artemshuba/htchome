@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -10,33 +11,11 @@
     <Version>4.0.0</Version>
     <TargetFramework>net10.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\FlipClock\am.png" />
-    <None Remove="Resources\FlipClock\Background\flip_bg.png" />
-    <None Remove="Resources\FlipClock\Background\flip_clock_divider.png" />
-    <None Remove="Resources\FlipClock\Background\flip_clock_tab_down.png" />
-    <None Remove="Resources\FlipClock\Background\flip_clock_tab_shadow.png" />
-    <None Remove="Resources\FlipClock\Background\flip_clock_tab_up.png" />
-    <None Remove="Resources\FlipClock\base_default.png" />
-    <None Remove="Resources\FlipClock\Digits\0.png" />
-    <None Remove="Resources\FlipClock\Digits\1.png" />
-    <None Remove="Resources\FlipClock\Digits\2.png" />
-    <None Remove="Resources\FlipClock\Digits\3.png" />
-    <None Remove="Resources\FlipClock\Digits\4.png" />
-    <None Remove="Resources\FlipClock\Digits\5.png" />
-    <None Remove="Resources\FlipClock\Digits\6.png" />
-    <None Remove="Resources\FlipClock\Digits\7.png" />
-    <None Remove="Resources\FlipClock\Digits\8.png" />
-    <None Remove="Resources\FlipClock\Digits\9.png" />
-    <None Remove="Resources\FlipClock\modern_base_default.png" />
-    <None Remove="Resources\FlipClock\modern_forecast_base.png" />
-    <None Remove="Resources\FlipClock\pm.png" />
-    <None Remove="Resources\FlipClock\SearchCancelIcon.png" />
-    <None Remove="Resources\FlipClock\SearchIcon.png" />
-    <None Remove="Resources\FlipClock\wide_base_default.png" />
-    <None Remove="Resources\FlipClock\wide_forecast_base.png" />
+    <Content Include="Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
