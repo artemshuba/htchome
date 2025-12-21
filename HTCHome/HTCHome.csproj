@@ -126,10 +126,4 @@
 
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Skins\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

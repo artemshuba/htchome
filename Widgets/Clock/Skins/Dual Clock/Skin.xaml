@@ -1,0 +1,78 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Fonts/Colors -->
+    
+    <!-- Widget Visual Layout -->
+    <DataTemplate x:Key="WidgetVisual">
+        <DockPanel Width="422" Height="200">
+            <!-- Bottom Titles -->
+            <Grid Name="ClockNameGrid" DockPanel.Dock="Bottom" Height="25" Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Center">
+                    <Rectangle RadiusX="12" RadiusY="12" Fill="Black" Opacity="0.5"/>
+                    <TextBlock Text="Local time" Foreground="White" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="14" MaxWidth="170" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+                <Grid Grid.Column="1" HorizontalAlignment="Center">
+                    <Rectangle RadiusX="12" RadiusY="12" Fill="Black" Opacity="0.5"/>
+                    <TextBlock Text="UTC" Foreground="White" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="14" MaxWidth="170" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+            </Grid>
+            
+            <!-- Clocks -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image Grid.ColumnSpan="2" Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_bg.png" Margin="0,10,0,0"/>
+                
+                <!-- First Clock (Local) -->
+                <Grid Name="FirstClock" Margin="-10,0,-10,-10">
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_base_day.png"/>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_hour.png" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="{Binding HourAngle}"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_minute.png" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="{Binding MinuteAngle}"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_second.png" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="{Binding SecondAngle}"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_center_dot.png" Margin="2,0,4,4"/>
+                </Grid>
+                
+                <!-- Second Clock (UTC placeholder - same time for now) -->
+                <Grid Grid.Column="1" Name="SecondClock" Margin="-10,0,-10,-10">
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_base_day.png"/>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_hour.png" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="{Binding HourAngle}"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_minute.png" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="{Binding MinuteAngle}"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_second.png" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="{Binding SecondAngle}"/>
+                        </Image.RenderTransform>
+                    </Image>
+                    <Image Source="pack://application:,,,/Clock;component/Resources/DualClock/clock_center_dot.png" Margin="2,0,4,4"/>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DataTemplate>
+</ResourceDictionary>

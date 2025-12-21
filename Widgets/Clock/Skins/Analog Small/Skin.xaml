@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Fonts/Colors -->
+    <SolidColorBrush x:Key="DayFontColor" Color="#5b5b5d"/>
+
+    <!-- Widget Visual Layout -->
+    <DataTemplate x:Key="WidgetVisual">
+        <Grid Width="220" Height="220">
+            <!-- Background -->
+            <Image Name="Bg" Source="pack://application:,,,/Clock;component/Resources/AnalogClockSmall/clock_base_day.png"/>
+            
+            <!-- Date Info (Based on AnalogClockSmall.xaml coords) -->
+            <TextBlock Name="Day" Text="{Binding DateString}" Margin="-90,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="{StaticResource DayFontColor}"/>
+            
+            <TextBlock Name="AmPm" Text="{Binding AmPm}" Margin="0,110,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="16" Foreground="#909091"/>
+
+            <!-- Hands -->
+            <Image Name="ClockHour" Source="pack://application:,,,/Clock;component/Resources/AnalogClockSmall/clock_hour.png" RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                    <RotateTransform Angle="{Binding HourAngle}"/>
+                </Image.RenderTransform>
+            </Image>
+            <Image Name="ClockMinute" Source="pack://application:,,,/Clock;component/Resources/AnalogClockSmall/clock_minute.png" RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                    <RotateTransform Angle="{Binding MinuteAngle}"/>
+                </Image.RenderTransform>
+            </Image>
+            <Image Name="ClockSecond" Source="pack://application:,,,/Clock;component/Resources/AnalogClockSmall/clock_second.png" RenderTransformOrigin="0.5,0.5">
+                <Image.RenderTransform>
+                    <RotateTransform Angle="{Binding SecondAngle}"/>
+                </Image.RenderTransform>
+            </Image>
+            
+            <!-- Center Dot -->
+            <Image Name="ClockDot" Source="pack://application:,,,/Clock;component/Resources/AnalogClockSmall/clock_center_dot.png" Width="32" Margin="3,0,0,0"/>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>

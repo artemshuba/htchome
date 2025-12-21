@@ -135,6 +135,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="App.cs" />
+    <Compile Remove="Settings.cs" />
+    <Compile Remove="App.cs" />
+    <Compile Remove="Settings.cs" />
+    <Compile Remove="Domain\WeatherProviderManager.cs" />
+    <Compile Remove="Controls\ModernForecastItem.xaml.cs" />
+    <Compile Remove="Controls\ForecastItem.xaml.cs" />
+    <Compile Remove="Controls\WideForecastItem.xaml.cs" />
+    <Compile Remove="Windows\**" />
+    <Page Remove="Windows\**" />
+    <Page Remove="Controls\ModernForecastItem.xaml" />
+    <Page Remove="Controls\ForecastItem.xaml" />
+    <Page Remove="Controls\WideForecastItem.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Home.Base\Home.Base.csproj">
       <Private>false</Private>
     </ProjectReference>

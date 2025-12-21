@@ -80,7 +80,6 @@ namespace HTCHome.Widgets
              // await _extensionManager.LoadExtensionsAsync(Path.Combine(E.Root, "Extensions"));
 
             // 3. Restore Layout
-            // 3. Restore Layout
             await RestoreLayoutAsync();
 
             // 4. Load Defaults if no layout

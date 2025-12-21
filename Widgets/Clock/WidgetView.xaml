@@ -6,16 +6,11 @@
              xmlns:controls="clr-namespace:Clock.Controls"
              xmlns:viewModel="clr-namespace:Clock.ViewModel"
              mc:Ignorable="d"
-             Width="500" Height="200"
-             Loaded="Widget_Loaded">
+             d:DesignWidth="500" d:DesignHeight="200">
     <UserControl.DataContext>
         <viewModel:WidgetViewModel/>
     </UserControl.DataContext>
-    <Grid Margin="100,15,100,0">
-        <Image Name="BackgroundImage" Source="{DynamicResource ClockBackground}" Stretch="Fill"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-16,0,0">
-            <controls:FlipTab x:Name="HoursTab" Delay="0.3" Margin="0,0,10,0"/>
-            <controls:FlipTab x:Name="MinutesTab" Delay="0.2" Speed="0.7"/>
-        </StackPanel>
+    <Grid>
+        <ContentControl Content="{Binding}" ContentTemplate="{DynamicResource WidgetVisual}"/>
     </Grid>
 </UserControl>

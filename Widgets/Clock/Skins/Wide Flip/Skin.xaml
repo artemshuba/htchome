@@ -1,0 +1,47 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:controls="clr-namespace:Clock.Controls;assembly=Clock">
+
+    <!-- Resources -->
+    <BitmapImage x:Key="FlipTabBackground" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_bg.png"/>
+    <BitmapImage x:Key="FlipTabShadow" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_shadow.png"/>
+    <BitmapImage x:Key="FlipTabDivider" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_divider.png"/>
+    <BitmapImage x:Key="FlipTabCardUp" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_up.png"/>
+    <BitmapImage x:Key="FlipTabCardDown" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_down.png"/>
+    <sys:String x:Key="DigitPathFormat">pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png</sys:String>
+
+    <!-- Widget Visual Layout -->
+    <DataTemplate x:Key="WidgetVisual">
+        <Grid Margin="0,35,0,0" Width="500" Height="275">
+            <!-- Background -->
+            <Image Name="Bg" Source="pack://application:,,,/Clock;component/Resources/FlipClock/wide_base_default.png" Stretch="Fill" Height="140" VerticalAlignment="Top"/>
+            
+            <!-- Clock -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,-20,0,0">
+                <controls:FlipTab x:Name="HoursTab" Value="{Binding Hours}" Delay="0.3" Margin="0,0,5,0"/>
+                <controls:FlipTab x:Name="MinutesTab" Value="{Binding Minutes}" Delay="0.2" Speed="0.7"/>
+            </StackPanel>
+            
+            <!-- Weather/Date Area -->
+            <Grid Name="WeatherGrid">
+                <TextBlock Name="DateTextBlock" Foreground="White" Text="{Binding DateString}" FontSize="16" Margin="22,112,0,5" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+                <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Margin="280,0,0,0" Width="210">
+                    <StackPanel Name="WeatherStackPanel" Orientation="Vertical" Margin="0,90,0,0" HorizontalAlignment="Left">
+                        <TextBlock Name="LocationTextBlock" Foreground="White" Text="New York" FontSize="16" TextWrapping="WrapWithOverflow" MaxWidth="180" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Name="WeatherTextBlock" Foreground="White" Text="Cloudy" FontSize="13" MaxWidth="180" MaxHeight="30" Margin="0,3,0,0" TextWrapping="WrapWithOverflow"/>
+                    </StackPanel>
+                    <TextBlock Name="TempTextBlock" Foreground="White" Text="1°" FontSize="38" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                </Grid>
+            </Grid>
+            
+            <!-- Forecast Grid Placeholder (Visual only) -->
+            <Grid Name="ForecastGrid" Height="100" VerticalAlignment="Bottom" Margin="8,0,8,0">
+                <Image Source="pack://application:,,,/Clock;component/Resources/FlipClock/wide_forecast_base.png" Stretch="Fill" Height="72" Margin="-10,0,-10,0"/>
+                <!-- Real forecast items omitted due to dependency exclusion -->
+                <TextBlock Text="Forecast Data Not Available" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>
+            </Grid>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
