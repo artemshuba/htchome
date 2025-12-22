@@ -103,7 +103,5 @@ namespace HTCHome.Widgets
 
             ContextMenu = contextMenu;
         }
-
-
     }
 }

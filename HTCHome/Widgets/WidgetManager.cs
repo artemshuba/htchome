@@ -221,7 +221,7 @@ namespace HTCHome.Widgets
                     try
                     {
                         var settingsView = new GlobalSettingsControl();
-                        var settingsWindow = new SettingsWindow("HTC Home Settings", settingsView);
+                        var settingsWindow = new SettingsWindow("HTC Home Settings", settingsView, null);
                         settingsWindow.ShowDialog();
                     }
                     catch (Exception ex)
@@ -232,23 +232,19 @@ namespace HTCHome.Widgets
                 };
                 window.SettingsRequested += (s, e) => 
                 {
-                    if (widget is IConfigurableWidget configurable)
+                    try
                     {
-                        try
-                        {
-                            var settingsView = configurable.CreateSettingsView();
-                            var settingsWindow = new SettingsWindow($"Settings - {descriptor.Manifest.DisplayName}", settingsView);
-                            settingsWindow.ShowDialog();
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.Error($"Failed to open settings for {widgetId}", ex);
-                            MessageBox.Show($"Error opening settings: {ex.Message}", "HTC Home", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
+                        // Get custom settings view if available
+                        var settingsView = (widget as IConfigurableWidget)?.CreateSettingsView();
+
+                        // Always open settings window (it now has General/Skins tab)
+                        var settingsWindow = new SettingsWindow($"Settings - {descriptor.Manifest.DisplayName}", settingsView, widgetContext.SkinService);
+                        settingsWindow.ShowDialog();
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        MessageBox.Show("This widget has no settings.", "HTC Home", MessageBoxButton.OK, MessageBoxImage.Information);
+                        _logger.Error($"Failed to open settings for {widgetId}", ex);
+                        MessageBox.Show($"Error opening settings: {ex.Message}", "HTC Home", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 };
 

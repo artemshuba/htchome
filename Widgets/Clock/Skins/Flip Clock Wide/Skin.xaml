@@ -14,6 +14,7 @@
     <!-- Widget Visual Layout -->
     <DataTemplate x:Key="WidgetVisual">
         <Grid Margin="0,35,0,0" Width="500" Height="275">
+            <Rectangle Fill="#EE000000" RadiusX="8" RadiusY="8" Margin="7,5,7,142"/>
             <!-- Background -->
             <Image Name="Bg" Source="pack://application:,,,/Clock;component/Resources/FlipClock/wide_base_default.png" Stretch="Fill" Height="140" VerticalAlignment="Top"/>
             
@@ -38,6 +39,7 @@
             
             <!-- Forecast Grid Placeholder (Visual only) -->
             <Grid Name="ForecastGrid" Height="100" VerticalAlignment="Bottom" Margin="8,0,8,0">
+                <Rectangle Fill="#EE000000" RadiusX="3" RadiusY="3" Margin="-1,22,0,22"/>
                 <Image Source="pack://application:,,,/Clock;component/Resources/FlipClock/wide_forecast_base.png" Stretch="Fill" Height="72" Margin="-10,0,-10,0"/>
                 <!-- Real forecast items omitted due to dependency exclusion -->
                 <TextBlock Text="Forecast Data Not Available" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,0"/>

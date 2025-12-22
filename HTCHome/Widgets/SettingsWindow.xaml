@@ -14,7 +14,53 @@
         </Grid.RowDefinitions>
 
         <!-- Content Area -->
-        <ContentControl x:Name="SettingsContent" Margin="10" Grid.Row="0"/>
+        <!-- Content Area -->
+        <TabControl Grid.Row="0" Margin="10">
+            <TabItem Header="General" x:Name="TabWidgetSettings">
+                <ContentControl x:Name="SettingsContent"/>
+            </TabItem>
+
+            <TabItem Header="Appearance">
+                 <StackPanel Margin="10">
+                     <GroupBox x:Name="GrpAppearance" Header="Appearance" Padding="10">
+                         <StackPanel>
+                             <TextBlock Text="Skin:" Margin="0,0,0,5"/>
+                             <Grid>
+                                 <Grid.ColumnDefinitions>
+                                     <ColumnDefinition Width="*"/>
+                                     <ColumnDefinition Width="Auto"/>
+                                 </Grid.ColumnDefinitions>
+                                 <ComboBox x:Name="ComboSkins" DisplayMemberPath="Name" SelectedValuePath="Name" SelectionChanged="ComboSkins_SelectionChanged"/>
+                                 <Button x:Name="BtnEditSkin" Grid.Column="1" Content="Edit" Margin="5,0,0,0" Padding="10,2" Click="BtnEditSkin_Click"/>
+                             </Grid>
+                             
+                             <!-- Skin Info Area -->
+                             <Grid Margin="0,10,0,0">
+                                 <Grid.ColumnDefinitions>
+                                     <ColumnDefinition Width="Auto"/>
+                                     <ColumnDefinition Width="*"/>
+                                 </Grid.ColumnDefinitions>
+                                 <!-- Preview Image Placeholder -->
+                                 <Border x:Name="BorderPreview" Width="100" Height="80" BorderBrush="Gray" BorderThickness="1" Margin="0,0,10,0">
+                                     <Image x:Name="ImgPreview" Stretch="Uniform"/>
+                                 </Border>
+                                 
+                                 <StackPanel Grid.Column="1">
+                                     <StackPanel Orientation="Horizontal">
+                                         <TextBlock Text="Version: " FontWeight="Bold"/>
+                                         <TextBlock x:Name="TxtVersion" Text="-"/>
+                                     </StackPanel>
+                                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                         <TextBlock Text="Author: " FontWeight="Bold"/>
+                                         <TextBlock x:Name="TxtAuthor" Text="-"/>
+                                     </StackPanel>
+                                 </StackPanel>
+                             </Grid>
+                         </StackPanel>
+                     </GroupBox>
+                 </StackPanel>
+            </TabItem>
+        </TabControl>
 
         <!-- Separator -->
         <Separator Grid.Row="1" VerticalAlignment="Top"/>

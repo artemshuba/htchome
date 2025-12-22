@@ -9,6 +9,7 @@
     <DataTemplate x:Key="WidgetVisual">
         <Grid Width="220" Height="220">
             <!-- Background -->
+            <Ellipse Fill="#DD000000" Margin="3,3,3,3"/>
             <Image Name="Bg" Source="pack://application:,,,/Clock;component/Resources/AnalogClockSmall/clock_base_day.png"/>
             
             <!-- Date Info (Based on AnalogClockSmall.xaml coords) -->

@@ -19,24 +19,12 @@ namespace Clock
         public void Initialize(IWidgetContext context)
         {
             _context = context;
-            
-            // Apply saved skin
-            var skin = _context.Configuration.GetValue<string>("Skin");
-            if (!string.IsNullOrEmpty(skin))
-            {
-                _context.SkinService.ApplySkin(skin);
-            }
-            else
-            {
-                // Default fallback if needed, though SkinService usually has defaults
-                _context.SkinService.ApplySkin("Modern Sense");
-            }
         }
 
         public FrameworkElement CreateSettingsView()
         {
             if (_context == null) return new System.Windows.Controls.Control(); // Should not happen
-            return new SettingsControl(_context.Configuration, _context.SkinService);
+            return new SettingsControl(_context.Configuration);
         }
 
         public FrameworkElement CreateView() 
