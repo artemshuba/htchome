@@ -30,6 +30,8 @@ namespace HTCHome.Widgets
 
         private Dictionary<string, WidgetDescriptor> _catalog = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, WidgetInstance> _instances = new(StringComparer.OrdinalIgnoreCase);
+        // Cache contexts to support multiple instances of same widget without reloading assembly
+        private Dictionary<string, WidgetLoadContext> _loadedContexts = new(StringComparer.OrdinalIgnoreCase);
 
         // Services
         private ILogger _logger;
@@ -57,7 +59,7 @@ namespace HTCHome.Widgets
 
             // Initialize Services
             _logger = new FileLogger(Path.Combine(_configRootPath, "Logs", $"htchome.log"));
-            _extensionManager = new ExtensionManager();
+            _extensionManager = new ExtensionManager(_logger);
             _networkService = new NetworkService();
         }
 
@@ -76,8 +78,8 @@ namespace HTCHome.Widgets
             _catalog = (await EnumerateWidgetsAsync()).ToDictionary(d => d.Manifest.Id, d => d, StringComparer.OrdinalIgnoreCase);
             _logger.Info($"Loaded {_catalog.Count} widgets in catalog.");
 
-            // 2. Load Extensions (TODO)
-             // await _extensionManager.LoadExtensionsAsync(Path.Combine(E.Root, "Extensions"));
+            // 2. Load Extensions
+             await _extensionManager.LoadExtensionsAsync(Path.Combine(E.Root, "Extras"));
 
             // 3. Restore Layout
             await RestoreLayoutAsync();
@@ -149,13 +151,17 @@ namespace HTCHome.Widgets
             {
                 var assemblyPath = Path.Combine(descriptor.DirectoryPath, descriptor.Manifest.AssemblyName);
                 
-                // TODO: Determine if we can reuse LoadContext for same widget type? 
-                // For now, creating separate contexts allows unloading individual instances safely (if needed) 
-                // or cleaner separation. But for memory, shared context per WidgetType is better.
-                // However, user Requirement said "support multiple instances".
-                // AssemblyLoadContext per Plugin (Widget Type) is standard.
-                // Let's create new context for each instance for maximum isolation for now.
-                loadContext = new WidgetLoadContext(assemblyPath);
+                // Check cache first
+                if (_loadedContexts.TryGetValue(widgetId, out var existingContext))
+                {
+                    loadContext = existingContext;
+                    _logger.Info($"Reusing existing context for {widgetId}");
+                }
+                else
+                {
+                    loadContext = new WidgetLoadContext(assemblyPath);
+                    _loadedContexts[widgetId] = loadContext;
+                }
                 
                 var assembly = loadContext.LoadFromAssemblyName(new AssemblyName(descriptor.Manifest.Id));
                 var widgetType = assembly.GetExportedTypes().FirstOrDefault(type => typeof(IWidget).IsAssignableFrom(type));
@@ -200,6 +206,7 @@ namespace HTCHome.Widgets
                 // Create Window
                 window = new WidgetWindow();
                 window.Content = view;
+                window.Resources.MergedDictionaries.Add(widgetContext.SkinResources);
 
                 // Position
                 if (layoutItem != null)
@@ -280,7 +287,7 @@ namespace HTCHome.Widgets
                 _logger.Error($"Failed to load widget {widgetId}", ex);
                 // Cleanup
                 // window?.Close(); // Window might be phantom
-                if (loadContext != null)
+                if (loadContext != null && !_loadedContexts.ContainsKey(widgetId))
                 {
                     try { loadContext.Unload(); } catch { }
                 }
@@ -432,6 +439,17 @@ namespace HTCHome.Widgets
                  // File.Delete(configPath); 
                  // Maybe keep state if user wants to undo? Or stricter cleanup? 
                  // User said "Widget unloading should be done...". Usually implies full removal.
+            }
+
+            // Unload context if last instance
+            if (!_instances.Values.Any(i => i.WidgetId == widgetInstance?.WidgetId))
+            {
+                if (widgetInstance != null && _loadedContexts.TryGetValue(widgetInstance.WidgetId, out var ctx))
+                {
+                    _logger.Info($"Unloading context for {widgetInstance.WidgetId} as last instance removed.");
+                    try { ctx.Unload(); } catch { }
+                    _loadedContexts.Remove(widgetInstance.WidgetId);
+                }
             }
 
             if (_instances.Count == 0)

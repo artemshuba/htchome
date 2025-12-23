@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows.Threading;
 using System.Media;
 using System.Reflection;
+using Weather.Base;
+using Home.Base.Widgets;
 using Weather.Domain;
 using Home.Base;
 
@@ -17,7 +19,7 @@ namespace Weather
         public static SoundPlayer SoundPlayer;
         public static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        public static void Initialize()
+        public static void Initialize(IWidgetContext context)
         {
              if (string.IsNullOrEmpty(ConfigFile))
                 ConfigFile = E.Root + "\\Weather.config";
@@ -25,7 +27,8 @@ namespace Weather
             Settings = (Settings)XmlSerializable.Load(typeof(Settings), ConfigFile) ?? new Settings();
             
             WpManager = new WeatherProviderManager();
-            // Provider loading logic might need to be called explicitly
+            var providers = context.GetExtensions<IWeatherProvider>();
+            WpManager.LoadProviders(providers);
         }
     }
 }

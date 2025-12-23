@@ -54,7 +54,7 @@ namespace Weather.Windows
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
             // Initialize Globals if not already
-            if (Globals.Settings == null) Globals.Initialize();
+            // Fixed: Check removed
 
             currentLocation = new LocationData();
             currentLocation.Code = Globals.Settings.LocationCode;
@@ -170,13 +170,13 @@ namespace Weather.Windows
             TempGrid.Dispatcher.Invoke((Action)delegate
             {
                 if (Globals.Settings.ShowFeelsLike)
-                    TemperatureTextBlock.Text = currentWeather.FeelsLike + "°";
+                    TemperatureTextBlock.Text = currentWeather.FeelsLike + "Â°";
                 else
-                    TemperatureTextBlock.Text = currentWeather.Temperature + "°";
+                    TemperatureTextBlock.Text = currentWeather.Temperature + "Â°";
 
                 if (currentWeather.ForecastList.Count > 0)
                 {
-                    TemperatureHLTextBlock.Text = currentWeather.ForecastList[0].HighTemperature + "°" + " / " + currentWeather.ForecastList[0].LowTemperature + "°";
+                    TemperatureHLTextBlock.Text = currentWeather.ForecastList[0].HighTemperature + "Â°" + " / " + currentWeather.ForecastList[0].LowTemperature + "Â°";
                 }
             });
 
@@ -252,8 +252,8 @@ namespace Weather.Windows
                         if (item.GetType() == typeof(ForecastItem))
                         {
                             var forecastItem = (ForecastItem)item;
-                            forecastItem.Temperature.Text = currentWeather.ForecastList[i].HighTemperature + "°/" +
-                                currentWeather.ForecastList[i].LowTemperature + "°";
+                            forecastItem.Temperature.Text = currentWeather.ForecastList[i].HighTemperature + "Â°/" +
+                                currentWeather.ForecastList[i].LowTemperature + "Â°";
                             forecastItem.DayName.Text = DateTime.Now.AddDays(i).ToString("ddd").ToLower();
                             forecastItem.Icon.Source = new BitmapImage(new Uri(string.Format("/UIFramework.Weather;Component/Images/weather_{0}.png",
                                             currentWeather.ForecastList[i].SkyCode), UriKind.Relative));

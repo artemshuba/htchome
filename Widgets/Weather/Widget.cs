@@ -10,15 +10,15 @@ namespace Weather
 
         public WidgetInfo Info => new WidgetInfo 
         { 
-            Name = "Weather Widget", 
-            Description = "HTC Weather Widget", 
-            Version = "1.0", 
-            Author = "HTC Home Team" 
+            Name = "Weather/Clock Widget", 
+            Description = "Weather/Clock", 
+            Version = "4.0", 
+            Author = "Stealth" 
         };
 
         public void Initialize(IWidgetContext context)
         {
-            // Initialize
+            Globals.Initialize(context);
         }
 
         public FrameworkElement CreateView()

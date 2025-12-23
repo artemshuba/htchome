@@ -31,29 +31,27 @@
 
             <!-- Weather Grid (Placeholder binding until Weather logic is moved) -->
             <Grid Name="WeatherGrid">
-             <StackPanel Name="WeatherStackPanel" Orientation="Vertical" Margin="7,120,0,0" HorizontalAlignment="Left">
-                <StackPanel.Effect>
-                    <DropShadowEffect Direction="135" ShadowDepth="1" BlurRadius="2" Opacity="0.6"/>
-                </StackPanel.Effect>
-                <TextBlock Name="LocationTextBlock" Foreground="White" Text="London" FontSize="16" TextWrapping="WrapWithOverflow" MaxWidth="100" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Name="WeatherTextBlock" Foreground="White" Text="Cloudy" FontSize="13" MaxWidth="100" MaxHeight="30" Margin="0,5,0,0" TextWrapping="WrapWithOverflow"/>
-            </StackPanel>
-            
-            <!-- Date/Temp Right Side -->
-            <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="0,118,7,0">
-                <Grid Name="RightGrid">
-                    <Grid.Effect>
-                        <DropShadowEffect Direction="315" ShadowDepth="1" BlurRadius="2" />
-                    </Grid.Effect>
-                    <TextBlock Name="DateTextBlock" Foreground="White" Text="{Binding DateString}" FontSize="14" Margin="0,0,0,7" HorizontalAlignment="Right"/>
-                    <!-- Placeholder Temp -->
-                    <TextBlock Name="TempTextBlock" Foreground="White" Text="20°" FontSize="34" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,20,0,0"/>
+                <StackPanel Name="WeatherStackPanel" Orientation="Vertical" Margin="7,120,0,0" HorizontalAlignment="Left">
+                    <StackPanel.Effect>
+                        <DropShadowEffect Direction="135" ShadowDepth="1" BlurRadius="2" Opacity="0.6"/>
+                    </StackPanel.Effect>
+                    <TextBlock Name="LocationTextBlock" Foreground="White" Text="London" FontSize="16" TextWrapping="WrapWithOverflow" MaxWidth="100" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Name="WeatherTextBlock" Foreground="White" Text="Cloudy" FontSize="13" MaxWidth="100" MaxHeight="30" Margin="0,5,0,0" TextWrapping="WrapWithOverflow"/>
+                </StackPanel>
 
-                </Grid>
+                <!-- Date/Temp Right Side -->
+                <StackPanel HorizontalAlignment="Right" Orientation="Vertical" Margin="0,118,7,0">
+                    <Grid Name="RightGrid">
+                        <Grid.Effect>
+                            <DropShadowEffect Direction="315" ShadowDepth="1" BlurRadius="2" />
+                        </Grid.Effect>
+                        <TextBlock Name="DateTextBlock" Foreground="White" Text="{Binding DateString}" FontSize="14" Margin="0,0,0,7" HorizontalAlignment="Right"/>
+                        <!-- Placeholder Temp -->
+                        <TextBlock Name="TempTextBlock" Foreground="White" Text="20°" FontSize="34" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,20,0,0"/>
+
+                    </Grid>
                 </StackPanel>
             </Grid>
-            <!-- Note: Complex animations and full weather/forecast logic omitted for Skin MVP. 
-                 Can be re-introduced when ViewModel supports Weather data. -->
         </Grid>
     </DataTemplate>
 </ResourceDictionary>

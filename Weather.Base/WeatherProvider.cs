@@ -8,8 +8,6 @@ namespace Weather.Base
 {
     public class WeatherProvider
     {
-        private readonly string path;
-        private Assembly assembly;
         private IWeatherProvider provider;
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -17,36 +15,16 @@ namespace Weather.Base
         public string Name { get; private set; }
         public bool HasErrors { get; private set; }
 
-        public WeatherProvider(string file)
+        public WeatherProvider(IWeatherProvider providerInstance)
         {
-            path = file;
-            Name = path.Substring(path.LastIndexOf(@"\") + 1, path.Length - path.LastIndexOf(@"\") - 5);
+            provider = providerInstance;
+            IsLoaded = true;
+            Name = provider.GetType().Assembly.GetName().Name;
         }
 
         public void Load()
         {
-            assembly = Assembly.LoadFrom(path);
-            Type providerType = null;
-            try
-            {
-                providerType = assembly.GetTypes().FirstOrDefault(type => typeof(IWeatherProvider).IsAssignableFrom(type));
-            }
-            catch (ReflectionTypeLoadException ex)
-            {
-                logger.Error("Failed to load provider from " + path + ".\n" + ex);
-                HasErrors = true;
-                return;
-            }
-
-            if (providerType == null)
-            {
-                logger.Error("Failed to find IWeatherProvider in " + path);
-                HasErrors = true;
-                return;
-            }
-
-            provider = Activator.CreateInstance(providerType) as IWeatherProvider;
-            IsLoaded = true;
+            // No-op
         }
 
         //public List<LocationData> GetLocations(string query, CultureInfo culture)

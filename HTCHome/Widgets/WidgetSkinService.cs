@@ -11,11 +11,15 @@ namespace HTCHome.Widgets
 {
     public partial class WidgetContext
     {
+        public ResourceDictionary SkinResources => ((WidgetSkinService)SkinService).SkinResources;
+
         private class WidgetSkinService : ISkinService
         {
             private readonly string _widgetDir;
             private readonly ILogger _logger;
             private readonly IConfigurationService _configuration;
+
+            public ResourceDictionary SkinResources { get; } = new ResourceDictionary();
 
             public WidgetSkinService(string widgetDir, ILogger logger, IConfigurationService configuration)
             {
@@ -171,14 +175,9 @@ namespace HTCHome.Widgets
                         var skinUri = new Uri(skinPath, UriKind.Absolute);
                         var skinDict = new ResourceDictionary { Source = skinUri };
                         
-                        var oldSkin = System.Windows.Application.Current.Resources.MergedDictionaries.FirstOrDefault(d => d.Contains("IsWidgetSkin"));
-                        if (oldSkin != null)
-                        {
-                            System.Windows.Application.Current.Resources.MergedDictionaries.Remove(oldSkin);
-                        }
-
+                        SkinResources.Clear();
                         skinDict["IsWidgetSkin"] = true; 
-                        System.Windows.Application.Current.Resources.MergedDictionaries.Add(skinDict);
+                        SkinResources.MergedDictionaries.Add(skinDict);
                         
                         CurrentSkin = skin;
                         

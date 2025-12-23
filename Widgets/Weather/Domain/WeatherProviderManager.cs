@@ -13,29 +13,19 @@ namespace Weather.Domain
 
         public List<WeatherProvider> Providers { get; private set; }
 
-        public void FindProviders()
+        public void LoadProviders(IEnumerable<IWeatherProvider> extensions)
         {
-            if (Directory.Exists(Home.Base.E.ExtPath + "\\Weather"))
+            Providers = new List<WeatherProvider>();
+            foreach (var ext in extensions)
             {
-                Providers = new List<WeatherProvider>();
-                var files = from x in Directory.GetFiles(Home.Base.E.ExtPath + "\\Weather")
-                            where x.EndsWith(".dll")
-                            select x;
-                foreach (var f in files)
+                var p = new WeatherProvider(ext);
+                // p.Load(); // No-op now
+                
+                if (Globals.Settings.Provider == p.Name)
                 {
-                    var p = new WeatherProvider(f);
-                    if (Globals.Settings.Provider == p.Name)
-                    {
-                        CurrentProvider = p;
-                        p.Load();
-                        if (p.HasErrors)
-                        {
-                            CurrentProvider = null;
-                            continue;
-                        }
-                    }
-                    Providers.Add(p);
+                    CurrentProvider = p;
                 }
+                Providers.Add(p);
             }
         }
     }

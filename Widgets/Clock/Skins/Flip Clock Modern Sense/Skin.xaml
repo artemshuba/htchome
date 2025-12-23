@@ -15,7 +15,7 @@
     <DataTemplate x:Key="WidgetVisual">
         <Grid Margin="100,15,100,0" Width="360" Height="200">
             <!-- Adding background under the base image to make it opaque -->
-            <Rectangle Fill="#EE000000" RadiusX="10" RadiusY="10" Margin="11,10,11,10"/>
+            <Rectangle Fill="#EE000000" RadiusX="10" RadiusY="10" Margin="11,10,11,10" />
             <Image Name="BackgroundImage" Source="pack://application:,,,/Clock;component/Resources/FlipClock/modern_base_default.png" Stretch="Fill" />
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-16,0,0">
                 <controls:FlipTab x:Name="HoursTab" Value="{Binding Hours}" Delay="0.3" Margin="0,0,10,0"/>

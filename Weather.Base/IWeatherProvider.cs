@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Weather.Base
 {
-    public interface IWeatherProvider
+    public interface IWeatherProvider : Home.Base.Widgets.IExtension
     {
         /// <summary>
         /// Get location list
