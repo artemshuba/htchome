@@ -11,6 +11,14 @@
     <BitmapImage x:Key="FlipTabCardDown" UriSource="pack://application:,,,/Clock;component/Resources/FlipClock/Background/flip_clock_tab_down.png"/>
     <sys:String x:Key="DigitPathFormat">pack://application:,,,/Clock;component/Resources/FlipClock/Digits/{0}.png</sys:String>
 
+    <Style x:Key="WeatherBlockTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="13"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+    </Style>
+
     <!-- Widget Visual Layout -->
     <DataTemplate x:Key="WidgetVisual">
         <Grid Margin="100,15,100,0" Width="360" Height="200">
@@ -21,6 +29,17 @@
                 <controls:FlipTab x:Name="HoursTab" Value="{Binding Hours}" Delay="0.3" Margin="0,0,10,0"/>
                 <controls:FlipTab x:Name="MinutesTab" Value="{Binding Minutes}" Delay="0.2" Speed="0.7"/>
             </StackPanel>
+
+            <Grid Name="WeatherBlock" Margin="20,0,20,0" VerticalAlignment="Bottom" Height="75">
+                <TextBlock Name="City" Text="New York" Style="{StaticResource WeatherBlockTextStyle}">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="1" Direction="315" ShadowDepth="2" Opacity="0.8" RenderingBias="Performance"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Name="Weather" Text="Clear" Style="{StaticResource WeatherBlockTextStyle}" HorizontalAlignment="Right"/>
+            </Grid>
+
+            <Image Source="pack://application:,,,/Clock;component/Resources/Weather/weather_1.png" Width="130" Height="130" VerticalAlignment="Bottom" Margin="0,0,0,-20"/>
         </Grid>
     </DataTemplate>
 </ResourceDictionary>
