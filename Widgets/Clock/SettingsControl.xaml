@@ -7,7 +7,23 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel Margin="10">
         <TextBlock Text="Clock Settings" FontSize="20" FontWeight="Bold" Margin="0,0,0,20"/>
-        <CheckBox x:Name="CheckShowSeconds" Content="Show Seconds" Margin="0,5"/>
-        <CheckBox x:Name="Check24Hour" Content="24 Hour Format" Margin="0,5"/>
+        
+        <GroupBox Header="General" Margin="0,0,0,10">
+            <StackPanel Margin="5">
+                <CheckBox x:Name="CheckShowSeconds" Content="Show Seconds" Margin="0,5"/>
+                <CheckBox x:Name="Check24Hour" Content="24 Hour Format" Margin="0,5"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Weather" Margin="0,0,0,10">
+            <StackPanel Margin="5">
+                <TextBlock Text="Provider:" Margin="0,0,0,2"/>
+                <ComboBox x:Name="ComboProviders" DisplayMemberPath="Name" SelectedValuePath="Name" Margin="0,0,0,10"/>
+                
+                <TextBlock Text="City:" Margin="0,0,0,2"/>
+                <TextBox x:Name="TxtCity" Margin="0,0,0,5"/>
+                <TextBlock Text="Experimental: Requires valid city name." FontSize="10" Foreground="Gray"/>
+            </StackPanel>
+        </GroupBox>
     </StackPanel>
 </UserControl>

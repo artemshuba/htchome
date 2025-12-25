@@ -31,15 +31,18 @@
             </StackPanel>
 
             <Grid Name="WeatherBlock" Margin="20,0,20,0" VerticalAlignment="Bottom" Height="75">
-                <TextBlock Name="City" Text="New York" Style="{StaticResource WeatherBlockTextStyle}">
+                <TextBlock Name="City" Text="{Binding WeatherCity}" Style="{StaticResource WeatherBlockTextStyle}">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="Black" BlurRadius="1" Direction="315" ShadowDepth="2" Opacity="0.8" RenderingBias="Performance"/>
                     </TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Name="Weather" Text="Clear" Style="{StaticResource WeatherBlockTextStyle}" HorizontalAlignment="Right"/>
+                <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                    <TextBlock Name="Temp" Text="{Binding WeatherTemp}" Style="{StaticResource WeatherBlockTextStyle}" FontSize="24" FontWeight="Bold" HorizontalAlignment="Right"/>
+                    <TextBlock Name="Weather" Text="{Binding WeatherCondition}" Style="{StaticResource WeatherBlockTextStyle}" HorizontalAlignment="Right"/>
+                </StackPanel>
             </Grid>
 
-            <Image Source="pack://application:,,,/Clock;component/Resources/Weather/weather_1.png" Width="130" Height="130" VerticalAlignment="Bottom" Margin="0,0,0,-20"/>
+            <Image Source="{Binding WeatherIcon}" Width="130" Height="130" VerticalAlignment="Bottom" Margin="0,0,0,-20"/>
         </Grid>
     </DataTemplate>
 </ResourceDictionary>

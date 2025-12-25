@@ -79,7 +79,7 @@ namespace HTCHome.Widgets
             _logger.Info($"Loaded {_catalog.Count} widgets in catalog.");
 
             // 2. Load Extensions
-             await _extensionManager.LoadExtensionsAsync(Path.Combine(E.Root, "Extras"));
+             await _extensionManager.LoadExtensionsAsync(Path.Combine(E.Root, "Extras\\Weather"));
 
             // 3. Restore Layout
             await RestoreLayoutAsync();
@@ -497,6 +497,15 @@ namespace HTCHome.Widgets
 
         protected override Assembly? Load(AssemblyName assemblyName)
         {
+            // Delegate shared assemblies to Default Context to ensure type identity
+            if (assemblyName.Name == "Home.Base" || 
+                assemblyName.Name == "Weather.Base" ||
+                assemblyName.Name == "NLog" || 
+                assemblyName.Name == "Newtonsoft.Json")
+            {
+                return null;
+            }
+
             var assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
             if (string.IsNullOrEmpty(assemblyPath))
                 return null;

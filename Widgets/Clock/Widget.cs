@@ -23,13 +23,14 @@ namespace Clock
 
         public FrameworkElement CreateSettingsView()
         {
-            if (_context == null) return new System.Windows.Controls.Control(); // Should not happen
-            return new SettingsControl(_context.Configuration);
+            if (_context == null) return new System.Windows.Controls.Control(); 
+            return new SettingsControl(_context);
         }
 
         public FrameworkElement CreateView() 
         {
             _view = new WidgetView();
+            _view.DataContext = new ViewModel.WidgetViewModel(_context);
             return _view;
         }
 
